@@ -253,7 +253,6 @@ animation: sweep 2s linear infinite;
 }
     
     
-/* СТИЛЬ ДЛЯ ВІКНА РАКЕТНОЇ НЕБЕЗПЕКИ */
 .missile-alert-panel {
 position: absolute;
 right: 12px;
@@ -276,6 +275,61 @@ animation: alertPulse 1.5s infinite ease-in-out;
 0%, 100% { border-color: rgba(220, 38, 38, 0.7); box-shadow: 0 0 15px rgba(220, 38, 38, 0.3); }
 50% { border-color: rgba(255, 50, 50, 1); box-shadow: 0 0 25px rgba(255, 50, 50, 0.6); }
 }
+
+@media (max-width: 768px) {
+
+    .topNav {
+        width: 85%;
+        justify-content: center;
+        gap: 10px;
+        padding: 8px 10px;
+    }
+    
+    .navBtn {
+        flex: 1;
+        text-align: center;
+        padding: 10px 5px;
+        font-size: 13px;
+    }
+
+    .sidePanel {
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        border-radius: 20px 20px 0 0 !important; 
+        border-bottom: none !important;
+        padding: 16px 20px 30px 20px !important; 
+        background: rgba(10, 14, 22, 0.95) !important;
+        box-shadow: 0 -10px 25px rgba(0,0,0,0.5);
+    }
+
+   
+    .bottomBar {
+        bottom: 20px;
+        gap: 15px;
+        padding: 8px;
+    }
+
+    .card {
+        width: 80px; 
+        height: 65px;
+    }
+    
+    .missile-alert-panel {
+        top: 70px !important; 
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+    }
+    
+    .leaflet-marker-icon {
+        padding: 10px;
+    }
+}
+    
 
 </style>
 </head>
@@ -341,13 +395,18 @@ const ukraineBounds = [
 [53, 41]
 ];
 
-const map = L.map('map',{
-zoomControl:false,
-maxBounds: ukraineBounds,
-maxBoundsViscosity: 1.0,
-minZoom: 6,
-maxZoom: 8
-}).setView([48.6,31],6);
+const isMobile = window.innerWidth <= 768;
+
+const map = L.map('map', {
+    zoomControl: false,
+    maxBounds: ukraineBounds,
+    maxBoundsViscosity: 1.0,
+    minZoom: isMobile ? 5 : 6, 
+    maxZoom: 8,
+    tap: !isMobile,
+    dragging: true, 
+    touchZoom: true 
+}).setView(isMobile ? [48.4, 31.2] : [48.6, 31], isMobile ? 5 : 6); 
 
 map.fitBounds(ukraineBounds);
 
@@ -851,126 +910,68 @@ map.on('click',e=>{
 
 /* ================= ACTIVE PVO ================= */
 
+/* ================= ACTIVE PVO ================= */
+
 function setActivePVO(p){
-
     activePVO = p;
-
-    pvos.forEach(x=>{
-
-        x.marker
-        .getElement()
-        .classList
-        .remove("pvo-active");
-
-        x.circle.setStyle({
-
-            color:"#3f8cff",
-            fillColor:"#3f8cff",
-            fillOpacity:0.08
-
-        });
-
-    });
-
-    p.marker
-    .getElement()
-    .classList
-    .add("pvo-active");
-
-    p.circle.setStyle({
-
-        color:"#268644",
-        fillColor:"#268644",
-        fillOpacity:0.16
-
-    });
-
+    
     let side = document.getElementById("side");
-
     side.style.display = "block";
 
+    // Скидаємо активний клас у всіх інших ППО та повертаємо синій колір радіусу
+    pvos.forEach(x => {
+        if(x.marker.getElement()) {
+            x.marker.getElement().classList.remove("pvo-active");
+        }
+        x.circle.setStyle({
+            color: "#3f8cff",
+            fillColor: "#3f8cff",
+            fillOpacity: 0.08
+        });
+    });
+
+    // Підсвічуємо поточне обране ППО зеленим радіусом
+    if(p.marker.getElement()) {
+        p.marker.getElement().classList.add("pvo-active");
+    }
+    p.circle.setStyle({
+        color: "#268644",
+        fillColor: "#268644",
+        fillOpacity: 0.16
+    });
+
+    // Генеруємо адаптивний інтерфейс шторки
     side.innerHTML = `
+    <div onclick="closePanel()" style="position:absolute; right:15px; top:12px; color:#9fb4d8; font-size:20px; cursor:pointer; font-weight:bold; display:${window.innerWidth <= 768 ? 'block' : 'none'}">✕</div>
 
-    <h3 style="
-    margin-top:0;
-    color:#fff;
-    text-align:center;
-    ">
-    Система ПВО
-    </h3>
+    <h3 style="margin-top:0; color:#fff; text-align:center;">Система ПВО</h3>
 
-    <img
-    src="${p.icon}"
-    style="
-    width:120px;
-    display:block;
-    margin:auto;
-    margin-top:12px;
-    filter:drop-shadow(0 0 12px #4da3ff);
-    ">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+        <img src="${p.icon}" style="width:90px; filter:drop-shadow(0 0 12px #4da3ff);">
+        <div id="ammoText" style="font-size:18px; color:#ffd54a; font-weight:bold;">
+            РАКЕТИ:<br>${p.ammo}/10
+        </div>
+    </div>
+
+    <div style="margin-top:14px; display:flex; flex-direction:${window.innerWidth <= 768 ? 'row' : 'column'}; gap:10px;">
+        <button onclick="toggleAuto()" style="flex:1; padding:12px; background:#13213d; color:white; border:none; border-radius:12px; cursor:pointer; font-size:13px; font-weight:bold;">
+            [C] АВТОПУСК 
+        </button>
+        <button onclick="toggleManual()" style="flex:1; padding:12px; background:#13213d; color:white; border:none; border-radius:12px; cursor:pointer; font-size:13px; font-weight:bold;">
+            [E] РУЧНИЙ ПУСК
+        </button>
+    </div>
+
+    <div style="margin-top:12px; font-size:12px; color:#9fb4d8; line-height:1.4; display:${window.innerWidth <= 768 ? 'none' : 'block'}">
+        • AUTO — автоперехват бпла/ракети<br>
+        • MANUAL — ручна наводка<br>
+        • Тицни на шахед, щоб збити його!
+    </div>
     
-    <div
-    id="ammoText"
-    style="
-    margin-top:12px;
-    text-align:center;
-    font-size:18px;
-    color:#ffd54a;
-    font-weight:bold;
-    ">
-    РАКЕТИ: ${p.ammo}/10
-    </div>
-
-    <div style="margin-top:18px">
-
-        <button
-        onclick="toggleAuto()"
-        style="
-        width:100%;
-        padding:12px;
-        margin-bottom:10px;
-        background:#13213d;
-        color:white;
-        border:none;
-        border-radius:12px;
-        cursor:pointer;
-        font-size:14px;
-        ">
-        [ C / С ] АВТОПУСК 
-        </button>
-
-        <button
-        onclick="toggleManual()"
-        style="
-        width:100%;
-        padding:12px;
-        background:#13213d;
-        color:white;
-        border:none;
-        border-radius:12px;
-        cursor:pointer;
-        font-size:14px;
-        ">
-        [ E / У ] РУЧНИЙ ПУСК
-        </button>
-
-    </div>
-
-    <div style="
-    margin-top:18px;
-    font-size:12px;
-    color:#9fb4d8;
-    line-height:1.5;
-    ">
-
-    • AUTO — автоперехват бпла/ракети<br>
-    • MANUAL — ручна наводка<br>
-    • Тицни щоб збити ворога!
-
-    </div>
-
+    <button onclick="closePanel()" style="width:100%; margin-top:12px; padding:10px; background:#111a2c; color:#fff; border:none; border-radius:10px; font-weight:bold; display:${window.innerWidth <= 768 ? 'block' : 'none'}">
+        ЗАКРИТИ МЕНЮ
+    </button>
     `;
-
 }
 
 /* ================= MODES ================= */
