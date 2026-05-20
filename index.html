@@ -159,10 +159,10 @@ z-index:9999;
 position:absolute;
 left:12px;
 top:12px;
-width:220px;
+width:240px;
 background:rgba(10,14,22,.85);
 border:1px solid rgba(255,255,255,.06);
-padding:10px;
+padding:12px;
 border-radius:14px;
 display:none;
 z-index:9999;
@@ -285,8 +285,8 @@ height: 100px;
 display: flex;
 align-items: center;
 justify-content: center;
-margin-top: 10px;
-margin-bottom: 10px;
+margin-top: 12px;
+margin-bottom: 12px;
 overflow: hidden;
 }
 
@@ -298,50 +298,107 @@ display: block;
 margin: 0 auto;
 }
 
+/* КЛАСИ ДЛЯ ДИНАМІЧНОГО ІНТЕРФЕЙСУ ППО */
+.side-title {
+margin-top: 0;
+color: #fff;
+text-align: center;
+font-size: 18px;
+}
+
+.ammo-text {
+margin-top: 12px;
+text-align: center;
+font-size: 18px;
+color: #ffd54a;
+font-weight: bold;
+}
+
+.action-btn {
+width: 100%;
+padding: 12px;
+margin-bottom: 10px;
+background: #13213d;
+color: white;
+border: none;
+border-radius: 12px;
+cursor: pointer;
+font-size: 14px;
+font-weight: bold;
+transition: 0.2s;
+}
+
+.action-btn:hover {
+background: #1c325c;
+}
+
+.info-text {
+margin-top: 18px;
+font-size: 12px;
+color: #9fb4d8;
+line-height: 1.5;
+}
+
 /* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ */
 @media (max-width: 768px) {
 .sidePanel {
-    width: 160px;
+    width: 155px;
     left: 8px;
-    top: 60px; /* опускаємо нижче верхньої навігації, щоб не перекривало */
-    padding: 8px;
-    border-radius: 10px;
+    top: 65px; /* Опускаємо нижче кнопок Мапа/Інфо */
+    padding: 10px;
+    border-radius: 12px;
 }
-.sidePanel h3 {
-    font-size: 14px;
-    margin-bottom: 6px;
+.side-title {
+    font-size: 13px;
 }
 .side-pvo-img-container {
-    height: 70px;
+    height: 60px;
     margin-top: 6px;
     margin-bottom: 6px;
 }
-#ammoText {
-    font-size: 13px !important;
-    margin-top: 6px !important;
+.ammo-text {
+    font-size: 12px;
+    margin-top: 6px;
 }
-.sidePanel button {
-    padding: 8px !important;
-    font-size: 11px !important;
-    margin-bottom: 6px !important;
-    border-radius: 8px !important;
+.action-btn {
+    padding: 8px;
+    font-size: 10px;
+    margin-bottom: 6px;
+    border-radius: 8px;
 }
-.sidePanel div[style*="font-size: 12px"] {
-    font-size: 10px !important;
-    margin-top: 8px !important;
-    line-height: 1.3 !important;
+.info-text {
+    font-size: 9px;
+    margin-top: 8px;
+    line-height: 1.3;
 }
 .missile-alert-panel {
-    width: 200px;
+    width: 190px;
     right: 8px;
-    top: 60px;
+    top: 65px;
     padding: 8px;
+    gap: 8px;
+}
+.missile-alert-panel img {
+    width: 30px;
+    height: 30px;
 }
 .missile-alert-panel div div:first-child {
     font-size: 11px !important;
 }
 .missile-alert-panel div div:last-child {
     font-size: 9px !important;
+}
+.bottomBar {
+    padding: 6px;
+    gap: 8px;
+    bottom: 8px;
+}
+.card {
+    width: 75px;
+    height: 55px;
+}
+.card img {
+    width: 70px;
 }
 }
 
@@ -371,15 +428,6 @@ margin: 0 auto;
 
 
 <div class="sidePanel" id="side">
-<h3>PVO</h3>
-<div class="side-pvo-img-container">
-    <img id="sideImg"/>
-</div>
-
-<button onclick="closePanel()" style="width:100%;margin-top:10px;padding:10px;background:#111a2c;color:#fff;border:none;border-radius:10px;">
-CLOSE
-</button>
-
 </div>
 
 <div class="missile-alert-panel" id="missileAlert" style="display: none;">
@@ -683,14 +731,14 @@ function spawnDrone() {
                 <img
                 src="icons/shahed.png"
                 style="
-                    width:22px;
-                    height:22px;
+                    width:16px;
+                    height:16px;
                     transform:rotate(${angle * 57.2958}deg);
                     filter:drop-shadow(0 0 6px red);
                 ">
                 `,
-                iconSize: [22,22],
-                iconAnchor: [11,11]
+                iconSize: [16,16],
+                iconAnchor: [8,8]
             })
         }
     ).addTo(map);
@@ -741,15 +789,14 @@ function spawnBallisticMissile() {
                     <img
                     src="icons/ballistic1.png"
                     style="
-                        width:28px;
-                        height:28px;
-                        /* ДОДАНО +180, щоб розвернути носом вперед */
+                        width:20px;
+                        height:20px;
                         transform:rotate(${angle * 57.2958 + 180}deg);
                         filter:drop-shadow(0 0 8px #ff3333) brightness(1.2);
                     ">
                     `,
-                    iconSize: [28,28],
-                    iconAnchor: [14,14]
+                    iconSize: [20,20],
+                    iconAnchor: [10,10]
                 })
             }
         ).addTo(map);
@@ -785,19 +832,14 @@ function showScreen(screen) {
     const infoScreen = document.getElementById("infoScreen");
 
     if (screen === 'map') {
-        // Активуємо кнопку мапи
         mapBtn.classList.add("active");
         infoBtn.classList.remove("active");
-        // Ховаємо вікно інфо
         infoScreen.style.display = "none";
     } else if (screen === 'info') {
-        // Активуємо кнопку інфо
         infoBtn.classList.add("active");
         mapBtn.classList.remove("active");
-        // Показуємо вікно інфо
         infoScreen.style.display = "flex";
         
-        // Резюмаємо аудіо-контекст, про всяк випадок
         if (typeof audio !== 'undefined') audio.resume();
     }
 }
@@ -959,79 +1001,40 @@ function setActivePVO(p){
 
     side.style.display = "block";
 
+    /* Застосовуємо виправлені CSS-класи замісті інлайнових стилів */
     side.innerHTML = `
 
-    <h3 style="
-    margin-top:0;
-    color:#fff;
-    text-align:center;
-    ">
-    Система ПВО
-    </h3>
+    <h3 class="side-title">Система ПВО</h3>
 
     <div class="side-pvo-img-container">
         <img src="${p.icon}" style="filter:drop-shadow(0 0 12px #4da3ff);">
     </div>
     
-    <div
-    id="ammoText"
-    style="
-    margin-top:12px;
-    text-align:center;
-    font-size:18px;
-    color:#ffd54a;
-    font-weight:bold;
-    ">
-    РАКЕТИ: ${p.ammo}/10
+    <div id="ammoText" class="ammo-text">
+        РАКЕТИ: ${p.ammo}/10
     </div>
 
-    <div style="margin-top:18px">
+    <div style="margin-top:14px">
 
-        <button
-        onclick="toggleAuto()"
-        style="
-        width:100%;
-        padding:12px;
-        margin-bottom:10px;
-        background:#13213d;
-        color:white;
-        border:none;
-        border-radius:12px;
-        cursor:pointer;
-        font-size:14px;
-        ">
-        [ C / С ] АВТОПУСК 
+        <button onclick="toggleAuto()" class="action-btn">
+            [ C / С ] АВТОПУСК 
         </button>
 
-        <button
-        onclick="toggleManual()"
-        style="
-        width:100%;
-        padding:12px;
-        background:#13213d;
-        color:white;
-        border:none;
-        border-radius:12px;
-        cursor:pointer;
-        font-size:14px;
-        ">
-        [ E / У ] РУЧНИЙ ПУСК
+        <button onclick="toggleManual()" class="action-btn">
+            [ E / У ] РУЧНИЙ ПУСК
         </button>
 
     </div>
 
-    <div style="
-    margin-top:18px;
-    font-size:12px;
-    color:#9fb4d8;
-    line-height:1.5;
-    ">
-
-    • AUTO — автоперехват бпла/ракети<br>
-    • MANUAL — ручна наводка<br>
-    • Тицни щоб збити ворога!
-
+    <div class="info-text">
+        • AUTO — автоперехват бпла/ракети<br>
+        • MANUAL — ручна наводка<br>
+        • Тицни щоб збити ворога!
     </div>
+
+    <button onclick="closePanel()" class="action-btn" style="background:#111a2c; margin-top:10px; margin-bottom:0;">
+        CLOSE
+    </button>
 
     `;
 
@@ -1419,21 +1422,16 @@ setInterval(()=>{
 
         let dist = Math.sqrt(dx * dx + dy * dy);
         
-        // ДОДАНО: ЕФЕКТ ВЛУЧАННЯ У МІСТО (Приліт цілі)
         if(dist < 0.05){
 
             d.alive = false;
             map.removeLayer(d.marker);
 
-            // Отримуємо екранні піксельні координати міста для запуску візуального вибуху
             let pixelPos = map.latLngToContainerPoint([d.targetLat, d.targetLng]);
-            
-            // Створюємо ефект вибуху на місці міста
             explosion(pixelPos.x, pixelPos.y);
             
-            // Відтворюємо звук прильоту
             let cityBoom = new Audio("sounds/explosion.mp3");
-            cityBoom.volume = 0.6; // Трішки гучніше для акценту прильоту
+            cityBoom.volume = 0.6; 
             cityBoom.play();
 
             continue;
