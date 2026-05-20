@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ukraine map</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+
+body{
+margin:0;
+overflow:hidden;
+background:#05070c;
+font-family:Arial;
+color:#eaf2ff;
+}
+
+#map{
+width:100vw;
+height:100vh;
+filter:brightness(0.92) contrast(1) saturate(1.);
+}
+
+body::before{
+content:"";
+position:absolute;
+width:100%;
+height:100%;
+background:radial-gradient(circle at center, rgba(77,163,255,.08), transparent 60%);
+pointer-events:none;
+}
+
+    
+    /* ВЕРХНЯ ПАНЕЛЬ ПЕРЕМИКАННЯ */
+.topNav {
+position: absolute;
+top: 12px;
+left: 50%;
+transform: translateX(-50%);
+display: flex;
+gap: 15px;
+background: rgba(10, 14, 22, 0.85);
+border: 1px solid rgba(255, 255, 255, 0.06);
+padding: 6px 16px;
+border-radius: 20px;
+z-index: 99999;
+backdrop-filter: blur(5px);
+}
+
+.navBtn {
+background: transparent;
+border: none;
+color: #9fb4d8;
+padding: 8px 16px;
+font-size: 14px;
+font-weight: bold;
+cursor: pointer;
+border-radius: 14px;
+transition: 0.2s;
+}
+
+.navBtn:hover {
+color: #fff;
+background: rgba(255, 255, 255, 0.05);
+}
+
+.navBtn.active {
+color: #ffd54a;
+background: rgba(77, 163, 255, 0.15);
+box-shadow: inset 0 0 8px rgba(77, 163, 255, 0.2);
+}
+
+/* ВІКНО ІНФОРМАЦІЇ */
+.infoOverlay {
+position: absolute;
+top: 0;
+left: 0;
+width: 100vw;
+height: 100vh;
+background: rgba(5, 7, 12, 0.95);
+z-index: 99990;
+display: none;
+align-items: center;
+justify-content: center;
+backdrop-filter: blur(10px);
+}
+
+.infoContent {
+width: 100%;
+max-width: 700px;
+background: rgba(14, 22, 38, 0.8);
+border: 1px solid rgba(77, 163, 255, 0.2);
+border-radius: 16px;
+padding: 24px;
+box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+text-align: center;
+animation: fadeIn 0.3s ease-in-out;
+
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: scale(0.95); }
+to { opacity: 1; transform: scale(1); }
+}
+
+.infoContent h2 {
+color: #fff;
+margin-top: 0;
+margin-bottom: 20px;
+letter-spacing: 1px;
+font-size: 30px;
+}
+
+.infoContent p {
+color: #eaf2ff;
+font-size: 17px;
+line-height: 1.6;
+text-align: left;
+background: rgba(10, 14, 22, 0.5);
+padding: 15px;
+border-radius: 12px;
+border: 1px solid rgba(255,255,255,0.03);
+}
+
+.infoLink {
+color: #4da3ff;
+text-decoration: none;
+font-weight: bold;
+transition: 0.2s;
+}
+
+.infoLink:hover {
+color: #ffd54a;
+text-shadow: 0 0 8px rgba(255, 213, 74, 0.4);
+}
+
+
+    .card img {
+        width: 90px
+    }
+    
+    
+.panel{
+position:absolute;
+right:12px;
+top:12px;
+width:320px;
+background:rgba(10,14,22,.85);
+border:1px solid rgba(255,255,255,.06);
+padding:12px;
+border-radius:14px;
+z-index:9999;
+}
+
+.sidePanel{
+position:absolute;
+left:12px;
+top:12px;
+width:220px;
+background:rgba(10,14,22,.85);
+border:1px solid rgba(255,255,255,.06);
+padding:10px;
+border-radius:14px;
+display:none;
+z-index:9999;
+}
+
+.bottomBar{
+position:absolute;
+bottom:12px;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+gap:10px;
+background:rgba(10,14,22,.85);
+padding:10px;
+border-radius:14px;
+z-index:9999;
+}
+
+img{
+background:transparent !important;
+border:none !important;
+box-shadow:none !important;
+}
+
+.card{
+width:90px;
+height:70px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#0e1626;
+border-radius:12px;
+cursor:pointer;
+transition:.2s;
+overflow:hidden;
+}
+
+.card:hover{
+transform:scale(1.05);
+box-shadow:0 0 12px rgba(77,163,255,.3);
+}
+
+.pvo-active{
+filter:drop-shadow(0 0 14px #ffd54a) brightness(1.4);
+transform:scale(1.05);
+transition:0.2s;
+}
+
+.explosion{
+width:10px;
+height:10px;
+border-radius:50%;
+background:radial-gradient(circle,#ffcc66,#ff4d4d,transparent);
+}
+    
+    
+    
+    
+.radar {
+position: absolute;
+width: 140px;
+height: 140px;
+border-radius: 50%;
+background: radial-gradient(circle, rgba(77,163,255,0.25) 0%, transparent 70%);
+border: 2px solid rgba(77,163,255,0.5);
+animation: pulse 2s infinite;
+pointer-events: none;
+}
+
+.radar::after {
+content: "";
+position: absolute;
+width: 100%;
+height: 100%;
+border-radius: 50%;
+border: 2px solid rgba(77,163,255,0.3);
+animation: sweep 2s linear infinite;
+}
+
+@keyframes sweep {
+0% { transform: rotate(0deg) scale(1); opacity: 1; }
+100% { transform: rotate(360deg) scale(1.4); opacity: 0; }
+}
+
+@keyframes pulse {
+0%,100% { opacity: 0.6; }
+50% { opacity: 1; }
+}
+    
+    
+/* СТИЛЬ ДЛЯ ВІКНА РАКЕТНОЇ НЕБЕЗПЕКИ */
+.missile-alert-panel {
+position: absolute;
+right: 12px;
+top: 12px;
+width: 260px;
+background: rgba(220, 38, 38, 0.2);
+border: 2px solid rgba(220, 38, 38, 0.7);
+backdrop-filter: blur(10px);
+padding: 12px;
+border-radius: 12px;
+z-index: 9999;
+display: flex;
+align-items: center;
+gap: 12px;
+box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
+animation: alertPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes alertPulse {
+0%, 100% { border-color: rgba(220, 38, 38, 0.7); box-shadow: 0 0 15px rgba(220, 38, 38, 0.3); }
+50% { border-color: rgba(255, 50, 50, 1); box-shadow: 0 0 25px rgba(255, 50, 50, 0.6); }
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div class="topNav">
+    <button class="navBtn active" id="btnMap" onclick="showScreen('map')">МАПА</button>
+    <button class="navBtn" id="btnInfo" onclick="showScreen('info')">ІНФО</button>
+</div>
+
+<div class="infoOverlay" id="infoScreen">
+    <div class="infoContent">
+        <h2>ІНФОРМАЦІЯ ПРО ПРОЄКТ</h2>
+        <p>
+            <strong>Розробник:</strong> <a href="https://t.me/kinub" target="_blank" class="infoLink">@kinub</a><br>
+            <strong>ТГ-канал:</strong> <a href="https://t.me/empty" target="_blank" class="infoLink">@empty</a>
+            <br><br>
+            <strong>Про сайт:</strong> Цей інтерактивний веб-додаток є симулятором тактичної карти протиповітряної оборони (ППО) України. Він розроблений для демонстрації алгоритмів перехоплення повітряних цілей у реальному часі. Ви можете самостійно розміщувати комплекси ППО на карті, керувати режимами їхньої роботи (автоматичний або ручний пуск) та відбивати імітовані атаки БПЛА "Shahed" та балістичних ракет.
+        </p>
+    </div>
+</div>
+
+
+<div class="sidePanel" id="side">
+<h3>PVO</h3>
+<img id="sideImg" style="width:100%;margin-top:10px;border-radius:10px"/>
+
+<button onclick="closePanel()" style="width:100%;margin-top:10px;padding:10px;background:#111a2c;color:#fff;border:none;border-radius:10px;">
+CLOSE
+</button>
+
+</div>
+
+<div class="missile-alert-panel" id="missileAlert" style="display: none;">
+<img src="icons/pngegg(1).png" style="width: 40px; height: 40px; object-fit: contain;">
+<div>
+    <div style="font-weight: bold; color: #ffdddd; font-size: 14px; letter-spacing: 0.5px;">РАКЕТНА НЕБЕЗПЕКА</div>
+    <div style="font-size: 11px; color: #ffaaaa; margin-top: 2px;">Зафіксовано пуски балістики!</div>
+</div>
+</div>
+
+<div class="bottomBar">
+
+<div class="card" onclick="selectPVO(this,'icons/first.png')">
+<img src="icons/first.png">
+</div>
+
+<div class="card" onclick="selectPVO(this,'icons/second.png')">
+<img src="icons/second.png">
+</div>
+
+</div>
+<script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.js"></script>
+<script>
+
+
+
+const ukraineBounds = [
+[44, 22],
+[53, 41]
+];
+
+const map = L.map('map',{
+zoomControl:false,
+maxBounds: ukraineBounds,
+maxBoundsViscosity: 1.0,
+minZoom: 6,
+maxZoom: 8
+}).setView([48.6,31],6);
+
+map.fitBounds(ukraineBounds);
+
+L.tileLayer(
+'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+{
+attribution:''
+}).addTo(map);
+
+
+let ukraineCoords = null;
+
+
+fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/UKR.geo.json')
+.then(r => r.json())
+.then(data => {
+
+    // 1. Координаты огромной рамки (весь мир)
+    const worldOuter = [
+        [-90, -180],
+        [90, -180],
+        [90, 180],
+        [-90, 180],
+        [-90, -180]
+    ];
+
+   
+    function getHoles(geometry) {
+        let holes = [];
+        if (geometry.type === 'Polygon') {
+            holes.push(geometry.coordinates[0].map(c => [c[1], c[0]]));
+        } else if (geometry.type === 'MultiPolygon') {
+            geometry.coordinates.forEach(poly => {
+                holes.push(poly[0].map(c => [c[1], c[0]]));
+            });
+        }
+        return holes;
+    }
+
+    const ukraineHoles = getHoles(data.features[0].geometry);
+
+    const maskArray = [worldOuter, ...ukraineHoles];
+
+    L.polygon(maskArray, {
+        color: 'none',
+        fillColor: '#05070c', 
+        fillOpacity: 1,       
+        interactive: false
+    }).addTo(map);
+
+    L.geoJSON(data, {
+        style: {
+            color: '#ffffff',
+            weight: 0.5,
+            fillOpacity: 0,
+            interactive: false
+        }
+    }).addTo(map);
+    window.ukraineLayer = L.geoJSON(data);
+});
+    
+    
+
+/* ================= STATE ================= */
+
+let drones = [];
+let pvos = [];
+
+let placing = false;
+let activePVO = null;
+
+let selectedIcon = null;
+
+let manualMode = false;
+
+/* ================= AUDIO ================= */
+
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+const audio = new AudioCtx();
+
+function beep(
+    f = 440,
+    t = 0.08,
+    type = "sine",
+    v = 0.04
+){
+
+    let o = audio.createOscillator();
+    let g = audio.createGain();
+
+    o.type = type;
+    o.frequency.value = f;
+
+    g.gain.value = v;
+
+    o.connect(g);
+    g.connect(audio.destination);
+
+    o.start();
+    o.stop(audio.currentTime + t);
+
+}
+
+function launchSound(){
+
+    beep(120,0.12,"square",0.03);
+
+    setTimeout(()=>{
+        beep(180,0.08,"sine",0.02);
+    },80);
+
+}
+
+function hitSound(){
+
+    beep(50,0.2,"sawtooth",0.07);
+
+}
+
+/* ================= SHAKE ================= */
+
+function shake(){
+
+    let el = document.getElementById("map");
+
+    el.style.transform =
+    `translate(${Math.random()*4-2}px,${Math.random()*4-2}px)`;
+
+    setTimeout(()=>{
+        el.style.transform = "translate(0,0)";
+    },60);
+
+}
+
+/* ================= EXPLOSION ================= */
+
+function explosion(x,y){
+
+    hitSound();
+    shake();
+
+    for(let i=0;i<14;i++){
+
+        let p = document.createElement("div");
+
+        p.className = "explosion";
+
+        p.style.position = "absolute";
+        p.style.left = x + "px";
+        p.style.top = y + "px";
+
+        document.body.appendChild(p);
+
+        let dx = (Math.random()-0.5)*140;
+        let dy = (Math.random()-0.5)*140;
+
+        p.animate([
+            {
+                transform:"translate(0,0) scale(1)",
+                opacity:1
+            },
+            {
+                transform:`translate(${dx}px,${dy}px) scale(.2)`,
+                opacity:0
+            }
+        ],
+        {
+            duration:700
+        });
+
+        setTimeout(()=>{
+            p.remove();
+        },800);
+
+    }
+
+}
+function getRandomTarget() {
+
+const targets = [
+
+    { lat: 50.45, lng: 30.52 }, // Киев
+    { lat: 49.84, lng: 24.03 }, // Львов
+    { lat: 48.46, lng: 35.04 }, // Днепр
+    { lat: 46.48, lng: 30.73 }, // Одесса
+    { lat: 49.99, lng: 36.23 }, // Харьков
+    { lat: 47.84, lng: 35.13 }, // Запорожье
+
+];
+
+    return targets[
+        Math.floor(Math.random() * targets.length)
+    ];
+}
+
+/* ================= SPAWN SHAHEDS & BALLISTICS ================= */
+
+function randomPointInUkraine() {
+
+    while (true) {
+
+        let lat = 44 + Math.random() * 8;
+        let lng = 22 + Math.random() * 18;
+
+        let point = turf.point([lng, lat]);
+
+        if (turf.booleanPointInPolygon(point, ukraineGeoJson)) {
+            return { lat, lng };
+        }
+    }
+}
+
+function spawnDrone() {
+
+    if (!window.ukraineLayer) return;
+
+    if (drones.length > 20) return;
+
+    let side = Math.floor(Math.random() * 3);
+    let lat, lng;
+
+    if (side === 0) { 
+        lat = 52.5; 
+        lng = 30 + Math.random() * 8; 
+    } else if (side === 1) { 
+        lat = 47 + Math.random() * 5; 
+        lng = 40.5; 
+    } else { 
+        lat = 45; 
+        lng = 34 + Math.random() * 5; 
+    }
+
+    let target = getRandomTarget();
+
+    let angle = Math.atan2(
+        target.lng - lng,
+        target.lat - lat
+    );
+
+    let speed = 0.0025 + 0.2 * 0.01;
+    let d = {
+
+        lat,
+        lng,
+
+        targetLat: target.lat,
+        targetLng: target.lng,
+
+        speed,
+        angle,
+
+        alive: true,
+        locked: false,
+        isRocket: false
+    };
+
+    let marker = L.marker(
+        [lat, lng],
+        {
+            icon: L.divIcon({
+                className: "",
+                html: `
+                <img
+                src="icons/shahed.png"
+                style="
+                    width:22px;
+                    height:22px;
+                    transform:rotate(${angle * 57.2958}deg);
+                    filter:drop-shadow(0 0 6px red);
+                ">
+                `,
+                iconSize: [22,22],
+                iconAnchor: [11,11]
+            })
+        }
+    ).addTo(map);
+
+    d.marker = marker;
+
+    drones.push(d);
+
+    bindDrone(d);
+}
+
+function spawnBallisticMissile() {
+    if (!window.ukraineLayer) return;
+    
+    let count = Math.floor(Math.random() * 2) + 2; 
+    
+    for(let k = 0; k < count; k++) {
+        let side = Math.floor(Math.random() * 3);
+        let lat, lng;
+
+        if (side === 0) { lat = 52.8; lng = 32 + Math.random() * 6; } 
+        else if (side === 1) { lat = 48 + Math.random() * 4; lng = 40.8; } 
+        else { lat = 44.5; lng = 33 + Math.random() * 4; }
+
+        let target = getRandomTarget();
+        let angle = Math.atan2(target.lng - lng, target.lat - lat);
+
+        let speed = 0.035 + Math.random() * 0.015; 
+
+        let d = {
+            lat,
+            lng,
+            targetLat: target.lat,
+            targetLng: target.lng,
+            speed,
+            angle,
+            alive: true,
+            locked: false,
+            isRocket: true
+        };
+
+        let marker = L.marker(
+            [lat, lng],
+            {
+                icon: L.divIcon({
+                    className: "",
+                    html: `
+                    <img
+                    src="icons/ballistic1.png"
+                    style="
+                        width:28px;
+                        height:28px;
+                        /* ДОДАНО +180, щоб розвернути носом вперед */
+                        transform:rotate(${angle * 57.2958 + 180}deg);
+                        filter:drop-shadow(0 0 8px #ff3333) brightness(1.2);
+                    ">
+                    `,
+                    iconSize: [28,28],
+                    iconAnchor: [14,14]
+                })
+            }
+        ).addTo(map);
+
+        d.marker = marker;
+        drones.push(d);
+        bindDrone(d);
+    }
+}
+
+setInterval(spawnDrone,1200);
+
+setTimeout(() => {
+    let alertEl = document.getElementById("missileAlert");
+    if(alertEl) alertEl.style.display = "flex";
+    
+    beep(220, 0.4, "sawtooth", 0.05);
+    setTimeout(() => beep(220, 0.4, "sawtooth", 0.05), 500);
+
+    spawnBallisticMissile();
+
+    setInterval(() => {
+        spawnBallisticMissile();
+    }, 40000);
+
+}, 60000);
+
+/* ================= SCREEN TOGGLE (MAP / INFO) ================= */
+
+function showScreen(screen) {
+    const mapBtn = document.getElementById("btnMap");
+    const infoBtn = document.getElementById("btnInfo");
+    const infoScreen = document.getElementById("infoScreen");
+
+    if (screen === 'map') {
+        // Активуємо кнопку мапи
+        mapBtn.classList.add("active");
+        infoBtn.classList.remove("active");
+        // Ховаємо вікно інфо
+        infoScreen.style.display = "none";
+    } else if (screen === 'info') {
+        // Активуємо кнопку інфо
+        infoBtn.classList.add("active");
+        mapBtn.classList.remove("active");
+        // Показуємо вікно інфо
+        infoScreen.style.display = "flex";
+        
+        // Резюмаємо аудіо-контекст, про всяк випадок
+        if (typeof audio !== 'undefined') audio.resume();
+    }
+}
+    
+    
+/* ================= SELECT PVO ================= */
+
+function selectPVO(card,icon){
+
+    document.querySelectorAll(".card").forEach(c=>{
+
+        c.classList.remove("pvo-active");
+
+    });
+
+    card.classList.add("pvo-active");
+    
+    setTimeout(()=>{
+        document.querySelectorAll(".card").forEach(c=>{
+            c.classList.remove("pvo-active");
+        });
+    }, 0);
+
+    selectedIcon = icon;
+
+    placing = true;
+
+    audio.resume();
+
+}
+
+/* ================= PLACE PVO ================= */
+
+map.on('click',e=>{
+
+    if(placing){
+        
+        let marker = L.marker(
+            e.latlng,
+            {
+                icon:L.divIcon({
+                    className:"",
+                    html:`
+                    <img
+                    src="${selectedIcon}"
+                    style="
+                    width:42px;
+                    filter:
+                    drop-shadow(0 0 10px #4da3ff);
+                    ">
+                    `
+                })
+            }
+        ).addTo(map);
+
+        let circle = L.circle(
+            e.latlng,
+            {
+                radius:95000,
+                color:"#3f8cff",
+                weight:1,
+                fillColor:"#3f8cff",
+                fillOpacity:0.08
+            }
+        ).addTo(map);
+
+        let p = {
+
+            marker,
+            circle,
+
+            latlng:e.latlng,
+
+            icon:selectedIcon,
+
+            auto:false,
+
+            ammo:10,
+            reloading:false
+
+        };
+
+        marker.on('click',()=>{
+
+            setActivePVO(p);
+
+        });
+
+        circle.on('click',()=>{
+
+            setActivePVO(p);
+
+        });
+
+        pvos.push(p);
+        
+        document.querySelectorAll(".card").forEach(c=>{
+        c.classList.remove("pvo-active");
+    });
+
+        placing = false;
+
+        return;
+
+    }
+
+    if(manualMode && activePVO){
+
+        let target = findDroneNear(e.latlng);
+
+        if(target){
+            let currentDist = map.distance(activePVO.latlng, [target.lat, target.lng]);
+            if (currentDist <= 95000) {
+                fire(activePVO,target,true);
+            }
+        }
+
+    }
+
+});
+
+/* ================= ACTIVE PVO ================= */
+
+function setActivePVO(p){
+
+    activePVO = p;
+
+    pvos.forEach(x=>{
+
+        x.marker
+        .getElement()
+        .classList
+        .remove("pvo-active");
+
+        x.circle.setStyle({
+
+            color:"#3f8cff",
+            fillColor:"#3f8cff",
+            fillOpacity:0.08
+
+        });
+
+    });
+
+    p.marker
+    .getElement()
+    .classList
+    .add("pvo-active");
+
+    p.circle.setStyle({
+
+        color:"#268644",
+        fillColor:"#268644",
+        fillOpacity:0.16
+
+    });
+
+    let side = document.getElementById("side");
+
+    side.style.display = "block";
+
+    side.innerHTML = `
+
+    <h3 style="
+    margin-top:0;
+    color:#fff;
+    text-align:center;
+    ">
+    Система ПВО
+    </h3>
+
+    <img
+    src="${p.icon}"
+    style="
+    width:120px;
+    display:block;
+    margin:auto;
+    margin-top:12px;
+    filter:drop-shadow(0 0 12px #4da3ff);
+    ">
+    
+    <div
+    id="ammoText"
+    style="
+    margin-top:12px;
+    text-align:center;
+    font-size:18px;
+    color:#ffd54a;
+    font-weight:bold;
+    ">
+    РАКЕТИ: ${p.ammo}/10
+    </div>
+
+    <div style="margin-top:18px">
+
+        <button
+        onclick="toggleAuto()"
+        style="
+        width:100%;
+        padding:12px;
+        margin-bottom:10px;
+        background:#13213d;
+        color:white;
+        border:none;
+        border-radius:12px;
+        cursor:pointer;
+        font-size:14px;
+        ">
+        [ C / С ] АВТОПУСК 
+        </button>
+
+        <button
+        onclick="toggleManual()"
+        style="
+        width:100%;
+        padding:12px;
+        background:#13213d;
+        color:white;
+        border:none;
+        border-radius:12px;
+        cursor:pointer;
+        font-size:14px;
+        ">
+        [ E / У ] РУЧНИЙ ПУСК
+        </button>
+
+    </div>
+
+    <div style="
+    margin-top:18px;
+    font-size:12px;
+    color:#9fb4d8;
+    line-height:1.5;
+    ">
+
+    • AUTO — автоперехват бпла/ракети<br>
+    • MANUAL — ручна наводка<br>
+    • Тицни щоб збити ворога!
+
+    </div>
+
+    `;
+
+}
+
+/* ================= MODES ================= */
+
+function toggleAuto(){
+
+    if(!activePVO) return;
+
+    activePVO.auto = !activePVO.auto;
+
+}
+
+function toggleManual(){
+
+    manualMode = !manualMode;
+
+}
+
+/* ================= KEYBOARD ================= */
+
+document.addEventListener("keydown",e=>{
+
+    if(
+        e.key === "c" ||
+        e.key === "с"
+    ){
+
+        toggleAuto();
+
+    }
+
+    if(
+        e.key === "e" ||
+        e.key === "у"
+    ){
+
+        toggleManual();
+
+    }
+
+});
+
+/* ================= FIND DRONE ================= */
+
+function findDroneNear(latlng){
+
+    let best = null;
+
+    let bestDist = 999999;
+
+    for(let d of drones){
+
+        if(!d.alive) continue;
+
+        let dist = map.distance(
+            latlng,
+            [d.lat,d.lng]
+        );
+
+        if(
+            dist < 30000 &&
+            dist < bestDist
+        ){
+
+            best = d;
+            bestDist = dist;
+
+        }
+
+    }
+
+    return best;
+
+}
+
+/* ================= AUTO FIRE ================= */
+
+setInterval(()=>{
+
+    for(let p of pvos){
+
+        if(!p.auto) continue;
+
+        for(let d of drones){
+
+            if(!d.alive) continue;
+
+            let dist = map.distance(
+                p.latlng,
+                [d.lat,d.lng]
+            );
+
+            if(dist <= 95000){
+
+                fire(p,d,false);
+
+                break;
+
+            }
+
+        }
+
+    }
+
+},1200);
+
+/* ================= FIRE SYSTEM ================= */
+
+function fire(pvo,drone,manual=false){
+
+if(!pvo) return;
+if(!drone) return;
+
+if(!drone.alive) return;
+
+if(drone.locked) return;
+    
+    if(pvo.ammo <= 0){
+
+    if(!pvo.reloading){
+
+        pvo.reloading = true;
+
+        setTimeout(()=>{
+
+            pvo.ammo = 10;
+
+            if(activePVO === pvo){
+
+                let ammoText =
+                    document.getElementById("ammoText");
+
+                if(ammoText){
+
+                    ammoText.innerText =
+                        `РАКЕТИ: ${pvo.ammo}/10`;
+
+                }
+
+            }
+
+            pvo.reloading = false;
+
+        },10000);
+
+    }
+
+    return;
+}
+
+drone.locked = true;
+pvo.ammo--;
+    if(activePVO === pvo){
+
+    let ammoText =
+        document.getElementById("ammoText");
+
+    if(ammoText){
+
+        ammoText.innerText =
+            `РАКЕТИ: ${pvo.ammo}/10`;
+
+    }
+
+}
+
+let launch = new Audio("sounds/launch.mp3");
+launch.volume = 0.35;
+launch.play();
+
+/* ================= MISSILE ================= */
+
+let rocket = L.marker(
+    pvo.latlng,
+    {
+        icon:L.divIcon({
+            className:"",
+            iconSize:[32,32],
+            iconAnchor:[16,16],
+
+            html:`
+            <div style="
+            position:relative;
+            width:32px;
+            height:32px;
+            overflow:visible;
+            ">
+
+                <div style="
+                position:absolute;
+                width:14px;
+                height:14px;
+                border-radius:50%;
+                background:rgba(255,180,80,.35);
+                left:2px;
+                top:9px;
+                filter:blur(5px);
+                ">
+                </div>
+
+                <img
+                src="icons/rocket.png"
+                style="
+                width:32px;
+                position:absolute;
+                left:0;
+                top:0;
+                transform-origin:center center;
+                transition:transform 0.03s linear;
+                filter:
+                drop-shadow(0 0 10px #ffd54a)
+                drop-shadow(0 0 20px rgba(255,200,50,.5));
+                ">
+            </div>
+            `
+        })
+    }
+).addTo(map);
+
+/* ================= TARGET LINE ================= */
+
+let line = L.polyline(
+    [
+        pvo.latlng,
+        drone.marker.getLatLng()
+    ],
+    {
+        color:"#ffc400",
+        weight:2,
+        dashArray:"8 10",
+        opacity:0.75
+    }
+).addTo(map);
+
+/* ================= MISSILE PHYSICS ================= */
+
+let i = 0;
+
+let steps = drone.isRocket ? 110 : 170;
+
+let startLat = pvo.latlng.lat;
+let startLng = pvo.latlng.lng;
+
+let int = setInterval(()=>{
+
+    if(!drone.alive){
+
+        map.removeLayer(rocket);
+        map.removeLayer(line);
+
+        clearInterval(int);
+
+        return;
+
+    }
+
+    i++;
+
+    let t = i / steps;
+
+    let curve =
+    Math.sin(t * Math.PI) * 0.25;
+
+    let lat =
+    startLat +
+    (drone.lat - startLat) * t +
+    curve;
+
+    let lng =
+    startLng +
+    (drone.lng - startLng) * t;
+
+    rocket.setLatLng([lat,lng]);
+
+    let futureT = t + 0.01;
+
+    let futureCurve =
+    Math.sin(futureT * Math.PI) * 0.25;
+
+    let nextLat =
+    startLat +
+    (drone.lat - startLat) * futureT +
+    futureCurve;
+
+    let nextLng =
+    startLng +
+    (drone.lng - startLng) * futureT;
+
+    let angle =
+    Math.atan2(
+        nextLng - lng,
+        nextLat - lat
+    ) * 180 / Math.PI;
+
+    let img =
+    rocket.getElement()
+    ?.querySelector("img");
+
+    if(img){
+
+        img.style.transform =
+        `rotate(${angle - 90}deg)`;
+
+    }
+
+    line.setLatLngs([
+        pvo.latlng,
+        drone.marker.getLatLng()
+    ]);
+
+    if(
+        map.distance(
+            [lat,lng],
+            [drone.lat,drone.lng]
+        ) < 7000
+    ){
+
+        let boom = new Audio("sounds/explosion.mp3");
+        boom.volume = 0.45;
+        boom.play();
+
+        let p =
+        map.latLngToContainerPoint(
+            [lat,lng]
+        );
+
+        explosion(p.x,p.y);
+
+        map.removeLayer(drone.marker);
+
+        drone.alive = false;
+
+        map.removeLayer(rocket);
+        map.removeLayer(line);
+
+        clearInterval(int);
+
+        return;
+
+    }
+
+    if(i >= steps){
+
+        map.removeLayer(rocket);
+        map.removeLayer(line);
+
+        clearInterval(int);
+
+    }
+
+},28);
+
+}
+
+/* ================= CLICK DRONE ================= */
+
+function bindDrone(d){
+
+    d.marker.on('click',()=>{
+
+        if(!activePVO) return;
+
+        let currentDist = map.distance(activePVO.latlng, [d.lat, d.lng]);
+        if (currentDist <= 95000) {
+            fire(activePVO,d,true);
+        }
+
+    });
+
+}
+
+/* ================= DRONE MOVEMENT ================= */
+
+setInterval(()=>{
+
+    for(let d of drones){
+
+        if(!d.alive) continue;
+
+        let dx = d.targetLat - d.lat;
+        let dy = d.targetLng - d.lng;
+
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        
+        // ДОДАНО: ЕФЕКТ ВЛУЧАННЯ У МІСТО (Приліт цілі)
+        if(dist < 0.05){
+
+            d.alive = false;
+            map.removeLayer(d.marker);
+
+            // Отримуємо екранні піксельні координати міста для запуску візуального вибуху
+            let pixelPos = map.latLngToContainerPoint([d.targetLat, d.targetLng]);
+            
+            // Створюємо ефект вибуху на місці міста
+            explosion(pixelPos.x, pixelPos.y);
+            
+            // Відтворюємо звук прильоту
+            let cityBoom = new Audio("sounds/explosion.mp3");
+            cityBoom.volume = 0.6; // Трішки гучніше для акценту прильоту
+            cityBoom.play();
+
+            continue;
+        }
+
+        d.lat += (dx / dist) * d.speed;
+        d.lng += (dy / dist) * d.speed;
+        
+        let angle =
+            Math.atan2(dy, dx) * 180 / Math.PI;
+
+        let img =
+            d.marker.getElement()?.querySelector("img");
+
+        if(img){
+
+            img.style.transform =
+                `rotate(${angle - 90}deg)`;
+
+        }
+
+        if(!d.isRocket) {
+            d.lat += Math.sin(Date.now()/1000) * 0.00005;
+            d.lng += Math.cos(Date.now()/1200) * 0.00003;
+        }
+
+        d.marker.setLatLng([
+            d.lat,
+            d.lng
+        ]);
+
+    }
+
+},40);
+
+/* ================= CLEANUP ================= */
+
+setInterval(()=>{
+
+    drones = drones.filter(d=>{
+
+        if(!d.alive) return false;
+
+        if(
+            d.lat > 55 ||
+            d.lng > 45
+        ){
+
+            map.removeLayer(d.marker);
+
+            return false;
+
+        }
+
+        return true;
+
+    });
+
+},4000);
+
+function closePanel() {
+    document.getElementById("side").style.display = "none";
+    if(activePVO) {
+        activePVO.marker.getElement().classList.remove("pvo-active");
+    }
+}
+
+</script>
+
+</body>
+</html>
