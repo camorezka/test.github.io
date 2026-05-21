@@ -525,14 +525,17 @@ const map = L.map('map',{
 zoomControl:false,
 maxBounds: ukraineBounds,
 maxBoundsViscosity: 1.0,
-minZoom: 6,
+minZoom: calculatedMinZoom, // Ставимо динамічний зум
 maxZoom: 8
-}).setView([48.6,31],5); // Изменили дефолтный зум на 5 (был 6), чтобы участок стал меньше
+}).setView([48.6,31], calculatedMinZoom); // Стартовий зум теж підлаштовується
 
 map.fitBounds(ukraineBounds);
 
 window.addEventListener('resize', () => {
     map.invalidateSize();
+    // Оновлюємо ліміти при зміні розміру екрана
+    const currentIsMobile = window.innerWidth <= 768;
+    map.setMinZoom(currentIsMobile ? 5 : 6);
     map.fitBounds(ukraineBounds);
 });
 
