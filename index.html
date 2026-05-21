@@ -21,13 +21,19 @@ align-items: center;
 justify-content: center;
 height: 100vh;
 width: 100vw;
+box-sizing: border-box;
 }
 
+/* Сделали карту чуть меньше, с красивыми аккуратными отступами для современного вида */
 #map{
-width:100vw;
-height:100vh;
+width: 96vw;
+height: 94vh;
+border-radius: 16px;
+border: 1px solid rgba(255, 255, 255, 0.05);
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 filter:brightness(0.92) contrast(1) saturate(1.);
 transition: all 0.3s ease;
+position: relative;
 }
 
 body::before{
@@ -44,7 +50,7 @@ z-index: 1;
 /* ВЕРХНЯ ПАНЕЛЬ ПЕРЕМИКАННЯ */
 .topNav {
 position: absolute;
-top: 12px;
+top: 24px;
 left: 50%;
 transform: translateX(-50%);
 display: flex;
@@ -162,23 +168,39 @@ border-radius:14px;
 z-index:9999;
 }
 
+/* Новая супер-компактная горизонтальная панель ПВО (высота 54px) */
 .sidePanel{
 position:absolute;
-left:12px;
-top:12px;
-width:240px;
-background:rgba(10,14,22,.85);
-border:1px solid rgba(255,255,255,.06);
-padding:12px;
-border-radius:14px;
-display:none;
-z-index:9999;
+left: 50%;
+bottom: 105px;
+transform: translateX(-50%);
+width: 90%;
+max-width: 500px;
+height: 54px;
+background: rgba(10, 14, 22, 0.92);
+border: 1px solid rgba(77, 163, 255, 0.25);
+padding: 0 16px;
+border-radius: 12px;
+display: none;
+z-index: 9999;
 box-sizing: border-box;
+backdrop-filter: blur(8px);
+box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+/* Контейнер внутри панели для выстраивания элементов в одну аккуратную строку */
+.pvo-row-container {
+display: flex;
+align-items: center;
+justify-content: space-between;
+width: 100%;
+height: 100%;
+gap: 10px;
 }
 
 .bottomBar{
 position:absolute;
-bottom:12px;
+bottom:24px;
 left:50%;
 transform:translateX(-50%);
 display:flex;
@@ -187,6 +209,7 @@ background:rgba(10,14,22,.85);
 padding:10px;
 border-radius:14px;
 z-index:9999;
+border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 img{
@@ -262,8 +285,8 @@ animation: sweep 2s linear infinite;
 /* СТИЛЬ ДЛЯ ВІКНА РАКЕТНОЇ НЕБЕЗПЕКИ */
 .missile-alert-panel {
 position: absolute;
-right: 12px;
-top: 12px;
+right: 24px;
+top: 24px;
 width: 260px;
 background: rgba(220, 38, 38, 0.2);
 border: 2px solid rgba(220, 38, 38, 0.7);
@@ -283,78 +306,82 @@ animation: alertPulse 1.5s infinite ease-in-out;
 50% { border-color: rgba(255, 50, 50, 1); box-shadow: 0 0 25px rgba(255, 50, 50, 0.6); }
 }
 
-/* Контейнер для зображення всередині бічної панелі ППО */
-.side-pvo-img-container {
-width: 100%;
-height: 100px;
+/* Маленькая аккуратная иконка ПВО в строке */
+.side-pvo-mini-img {
+width: 24px;
+height: 24px;
+object-fit: contain;
+vertical-align: middle;
+margin-right: 6px;
+}
+
+/* Компактные стили элементов текста и кнопок управления */
+.side-title {
+margin: 0;
+color: #fff;
+font-size: 14px;
+font-weight: bold;
 display: flex;
 align-items: center;
-justify-content: center;
-margin-top: 12px;
-margin-bottom: 12px;
-overflow: hidden;
-}
-
-.side-pvo-img-container img {
-max-width: 100%;
-max-height: 100%;
-object-fit: contain !important;
-display: block;
-margin: 0 auto;
-}
-
-/* КЛАСИ ДЛЯ ДИНАМІЧНОГО ІНТЕРФЕЙСУ ППО */
-.side-title {
-margin-top: 0;
-color: #fff;
-text-align: center;
-font-size: 18px;
+white-space: nowrap;
 }
 
 .ammo-text {
-margin-top: 12px;
-text-align: center;
-font-size: 18px;
+margin: 0;
+font-size: 14px;
 color: #ffd54a;
 font-weight: bold;
+white-space: nowrap;
 }
 
-.action-btn {
-width: 100%;
-padding: 12px;
-margin-bottom: 10px;
-background: #13213d;
-color: white;
+/* Кнопки переключения режимов по центру */
+.mode-switch-container {
+display: flex;
+background: #090d16;
+border-radius: 8px;
+padding: 2px;
+border: 1px solid rgba(255,255,255,0.05);
+}
+
+.mode-toggle-btn {
+background: transparent;
 border: none;
-border-radius: 12px;
-cursor: pointer;
-font-size: 14px;
+color: #728aa1;
+padding: 6px 12px;
+font-size: 11px;
 font-weight: bold;
-transition: 0.2s;
+cursor: pointer;
+border-radius: 6px;
+transition: 0.15s;
+text-transform: uppercase;
 }
 
-.action-btn:hover {
-background: #1c325c;
+.mode-toggle-btn.active {
+background: #1e3b6b;
+color: #fff;
+box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
-.info-text {
-margin-top: 18px;
-font-size: 12px;
-color: #9fb4d8;
-line-height: 1.5;
+.close-mini-btn {
+background: transparent;
+border: none;
+color: #ff5555;
+font-size: 16px;
+font-weight: bold;
+cursor: pointer;
+padding: 0 4px;
+margin-left: 4px;
+line-height: 1;
 }
 
-/* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ — СУЧАСНИЙ ОНОВЛЕНИЙ ВАРІАНТ */
+/* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ */
 @media (max-width: 768px) {
 #map {
-    width: 100vw;
-    height: 100vh;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
+    width: 94vw;
+    height: 90vh;
 }
 .topNav {
-    top: 10px;
+    top: 15px;
     padding: 4px 10px;
     gap: 8px;
 }
@@ -375,40 +402,25 @@ line-height: 1.5;
     padding: 10px;
 }
 .sidePanel {
-    width: 280px;
-    left: 50%;
-    top: auto;
+    width: 92%;
     bottom: 95px;
-    transform: translateX(-50%);
-    padding: 10px;
-    border-radius: 14px;
-    background: rgba(10, 14, 22, 0.95);
-    border: 1px solid rgba(77, 163, 255, 0.2);
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    padding: 0 10px;
+    height: 50px;
 }
 .side-title {
-    font-size: 15px;
+    font-size: 12px;
 }
-.side-pvo-img-container {
-    height: 60px;
-    margin-top: 6px;
-    margin-bottom: 6px;
+.side-pvo-mini-img {
+    width: 18px;
+    height: 18px;
+    margin-right: 4px;
 }
 .ammo-text {
-    font-size: 14px;
-    margin-top: 6px;
-}
-.action-btn {
-    padding: 10px;
     font-size: 12px;
-    margin-bottom: 6px;
-    border-radius: 10px;
 }
-.info-text {
+.mode-toggle-btn {
+    padding: 5px 8px;
     font-size: 10px;
-    margin-top: 6px;
-    line-height: 1.4;
-    text-align: center;
 }
 .missile-alert-panel {
     width: 220px;
@@ -432,8 +444,7 @@ line-height: 1.5;
 .bottomBar {
     padding: 8px;
     gap: 10px;
-    bottom: 12px;
-    background: rgba(10, 14, 22, 0.9);
+    bottom: 15px;
 }
 .card {
     width: 75px;
@@ -573,7 +584,6 @@ fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/U
     }).addTo(map);
     window.ukraineLayer = L.geoJSON(data);
     
-    // Додатковий форсований зум для правильного мобільного відображення меж після завантаження шарів
     map.invalidateSize();
     map.fitBounds(ukraineBounds);
 });
@@ -1056,51 +1066,57 @@ function setActivePVO(p){
 
     side.style.display = "block";
 
+    // Рендерим новую ультра-компактную горизонтальную строчку
     side.innerHTML = `
-
-    <h3 class="side-title">Система ПВО</h3>
-
-    <div class="side-pvo-img-container">
-        <img src="${p.icon}" style="filter:drop-shadow(0 0 12px #4da3ff);">
+    <div class="pvo-row-container">
+        <div class="side-title">
+            <img src="${p.icon}" class="side-pvo-mini-img">
+            ПВО
+        </div>
+        
+        <div class="mode-switch-container">
+            <button id="btnAutoMode" onclick="setControlMode('auto')" class="mode-toggle-btn ${p.auto ? 'active' : ''}">AUTO</button>
+            <button id="btnManualMode" onclick="setControlMode('manual')" class="mode-toggle-btn ${(!p.auto && manualMode) ? 'active' : (!p.auto ? 'active' : '')}">MANUAL</button>
+        </div>
+        
+        <div style="display: flex; align-items: center;">
+            <div id="ammoText" class="ammo-text">
+                🚀 ${p.ammo}/10
+            </div>
+            <button onclick="closePanel()" class="close-mini-btn">&times;</button>
+        </div>
     </div>
-    
-    <div id="ammoText" class="ammo-text">
-        РАКЕТИ: ${p.ammo}/10
-    </div>
-
-    <div style="margin-top:14px">
-
-        <button onclick="toggleAuto()" class="action-btn">
-            [ C / С ] АВТОПУСК 
-        </button>
-
-        <button onclick="toggleManual()" class="action-btn">
-            [ E / У ] РУЧНИЙ ПУСК
-        </button>
-
-    </div>
-
-    <div class="info-text">
-        • AUTO — автоперехват бпла/ракети<br>
-        • MANUAL — ручна наводка<br>
-        • Тицни щоб збити ворога!
-    </div>
-
-    <button onclick="closePanel()" class="action-btn" style="background:#111a2c; margin-top:10px; margin-bottom:0;">
-        CLOSE
-    </button>
-
     `;
 
 }
 
 /* ================= MODES ================= */
 
+function setControlMode(mode) {
+    if(!activePVO) return;
+    
+    const autoBtn = document.getElementById("btnAutoMode");
+    const manualBtn = document.getElementById("btnManualMode");
+    
+    if(mode === 'auto') {
+        activePVO.auto = true;
+        manualMode = false;
+        if(autoBtn) autoBtn.classList.add("active");
+        if(manualBtn) manualBtn.classList.remove("active");
+    } else {
+        activePVO.auto = false;
+        manualMode = true;
+        if(autoBtn) autoBtn.classList.remove("active");
+        if(manualBtn) manualBtn.classList.add("active");
+    }
+}
+
 function toggleAuto(){
 
     if(!activePVO) return;
 
     activePVO.auto = !activePVO.auto;
+    setControlMode(activePVO.auto ? 'auto' : 'manual');
 
 }
 
@@ -1109,6 +1125,15 @@ function toggleAuto(){
 function toggleManual(){
 
     manualMode = !manualMode;
+    if(activePVO) {
+        if(manualMode) {
+            activePVO.auto = false;
+            setControlMode('manual');
+        } else {
+            activePVO.auto = true;
+            setControlMode('auto');
+        }
+    }
 
 }
 
@@ -1227,7 +1252,7 @@ if(drone.locked) return;
                 if(ammoText){
 
                     ammoText.innerText =
-                        `РАКЕТИ: ${pvo.ammo}/10`;
+                        `🚀 ${pvo.ammo}/10`;
 
                 }
 
@@ -1252,7 +1277,7 @@ pvo.ammo--;
     if(ammoText){
 
         ammoText.innerText =
-            `РАКЕТИ: ${pvo.ammo}/10`;
+            `🚀 ${pvo.ammo}/10`;
 
     }
 
