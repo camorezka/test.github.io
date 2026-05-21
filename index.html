@@ -23,11 +23,16 @@ height: 100vh;
 width: 100vw;
 }
 
+/* ЗМЕНШЕНА КАРТА В ЦЕНТРІ ЕКРАНУ */
 #map{
-width:100vw;
-height:100vh;
+width:80vw;
+height:80vh;
+border-radius: 16px;
+border: 1px solid rgba(77, 163, 255, 0.15);
+box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
 filter:brightness(0.92) contrast(1) saturate(1.);
 transition: all 0.3s ease;
+position: relative;
 }
 
 body::before{
@@ -88,7 +93,7 @@ left: 0;
 width: 100vw;
 height: 100vh;
 background: rgba(5, 7, 12, 0.95);
-z-index: 99990;
+z-index: 999990;
 display: none;
 align-items: center;
 justify-content: center;
@@ -162,18 +167,116 @@ border-radius:14px;
 z-index:9999;
 }
 
+/* НОВА КОМПАКТНА ГОРИЗОНТАЛЬНА ПАНЕЛЬ (ВИСОТА 56px) */
 .sidePanel{
 position:absolute;
-left:12px;
-top:12px;
-width:240px;
-background:rgba(10,14,22,.85);
-border:1px solid rgba(255,255,255,.06);
-padding:12px;
+bottom: 85px;
+left: 50%;
+transform: translateX(-50%);
+width: 550px;
+height: 56px;
+background:rgba(10,14,22,.9);
+border:1px solid rgba(77, 163, 255, 0.2);
 border-radius:14px;
 display:none;
 z-index:9999;
 box-sizing: border-box;
+padding: 0 16px;
+backdrop-filter: blur(8px);
+box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+.pvo-mini-container {
+display: flex;
+align-items: center;
+justify-content: space-between;
+width: 100%;
+height: 100%;
+}
+
+.pvo-mini-left {
+display: flex;
+align-items: center;
+gap: 10px;
+width: 30%;
+}
+
+.pvo-mini-left img {
+width: 32px;
+height: 32px;
+object-fit: contain;
+filter: drop-shadow(0 0 6px #4da3ff);
+}
+
+.pvo-mini-title {
+font-size: 14px;
+font-weight: bold;
+color: #fff;
+white-space: nowrap;
+}
+
+.pvo-mini-center {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+width: 40%;
+}
+
+.mini-toggle-btn {
+background: #13213d;
+color: #9fb4d8;
+border: 1px solid rgba(255,255,255,0.05);
+padding: 6px 14px;
+font-size: 12px;
+font-weight: bold;
+border-radius: 8px;
+cursor: pointer;
+transition: 0.2s;
+}
+
+.mini-toggle-btn.active-auto {
+background: rgba(38, 134, 68, 0.25);
+color: #2ea44f;
+border-color: #2ea44f;
+box-shadow: 0 0 8px rgba(46, 164, 79, 0.3);
+}
+
+.mini-toggle-btn.active-manual {
+background: rgba(77, 163, 255, 0.25);
+color: #4da3ff;
+border-color: #4da3ff;
+box-shadow: 0 0 8px rgba(77, 163, 255, 0.3);
+}
+
+.pvo-mini-right {
+display: flex;
+align-items: center;
+justify-content: flex-end;
+gap: 14px;
+width: 30%;
+}
+
+.mini-ammo {
+font-size: 14px;
+color: #ffd54a;
+font-weight: bold;
+white-space: nowrap;
+}
+
+.mini-close-btn {
+background: transparent;
+border: none;
+color: #6b7c96;
+font-size: 18px;
+cursor: pointer;
+font-weight: bold;
+padding: 0 4px;
+transition: 0.2s;
+}
+
+.mini-close-btn:hover {
+color: #ff4d4d;
 }
 
 .bottomBar{
@@ -283,75 +386,12 @@ animation: alertPulse 1.5s infinite ease-in-out;
 50% { border-color: rgba(255, 50, 50, 1); box-shadow: 0 0 25px rgba(255, 50, 50, 0.6); }
 }
 
-/* Контейнер для зображення всередині бічної панелі ППО */
-.side-pvo-img-container {
-width: 100%;
-height: 100px;
-display: flex;
-align-items: center;
-justify-content: center;
-margin-top: 12px;
-margin-bottom: 12px;
-overflow: hidden;
-}
-
-.side-pvo-img-container img {
-max-width: 100%;
-max-height: 100%;
-object-fit: contain !important;
-display: block;
-margin: 0 auto;
-}
-
-/* КЛАСИ ДЛЯ ДИНАМІЧНОГО ІНТЕРФЕЙСУ ППО */
-.side-title {
-margin-top: 0;
-color: #fff;
-text-align: center;
-font-size: 18px;
-}
-
-.ammo-text {
-margin-top: 12px;
-text-align: center;
-font-size: 18px;
-color: #ffd54a;
-font-weight: bold;
-}
-
-.action-btn {
-width: 100%;
-padding: 12px;
-margin-bottom: 10px;
-background: #13213d;
-color: white;
-border: none;
-border-radius: 12px;
-cursor: pointer;
-font-size: 14px;
-font-weight: bold;
-transition: 0.2s;
-}
-
-.action-btn:hover {
-background: #1c325c;
-}
-
-.info-text {
-margin-top: 18px;
-font-size: 12px;
-color: #9fb4d8;
-line-height: 1.5;
-}
-
-/* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ — СУЧАСНИЙ ОНОВЛЕНИЙ ВАРІАНТ */
+/* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ */
 @media (max-width: 768px) {
 #map {
-    width: 100vw;
-    height: 100vh;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
+    width: 95vw;
+    height: 70vh;
+    border-radius: 12px;
 }
 .topNav {
     top: 10px;
@@ -375,47 +415,26 @@ line-height: 1.5;
     padding: 10px;
 }
 .sidePanel {
-    width: 280px;
-    left: 50%;
-    top: auto;
-    bottom: 95px;
-    transform: translateX(-50%);
-    padding: 10px;
-    border-radius: 14px;
-    background: rgba(10, 14, 22, 0.95);
-    border: 1px solid rgba(77, 163, 255, 0.2);
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    width: 95vw;
+    bottom: 80px;
+    padding: 0 10px;
 }
-.side-title {
-    font-size: 15px;
+.pvo-mini-title {
+    font-size: 11px;
 }
-.side-pvo-img-container {
-    height: 60px;
-    margin-top: 6px;
-    margin-bottom: 6px;
-}
-.ammo-text {
-    font-size: 14px;
-    margin-top: 6px;
-}
-.action-btn {
-    padding: 10px;
-    font-size: 12px;
-    margin-bottom: 6px;
-    border-radius: 10px;
-}
-.info-text {
+.mini-toggle-btn {
+    padding: 5px 8px;
     font-size: 10px;
-    margin-top: 6px;
-    line-height: 1.4;
-    text-align: center;
+}
+.mini-ammo {
+    font-size: 11px;
 }
 .missile-alert-panel {
-    width: 220px;
+    width: 200px;
     right: auto;
     left: 50%;
     transform: translateX(-50%);
-    top: 65px;
+    top: 60px;
     padding: 8px;
     gap: 8px;
 }
@@ -430,9 +449,9 @@ line-height: 1.5;
     font-size: 9px !important;
 }
 .bottomBar {
-    padding: 8px;
+    padding: 6px;
     gap: 10px;
-    bottom: 12px;
+    bottom: 10px;
     background: rgba(10, 14, 22, 0.9);
 }
 .card {
@@ -505,7 +524,7 @@ const map = L.map('map',{
 zoomControl:false,
 maxBounds: ukraineBounds,
 maxBoundsViscosity: 1.0,
-minZoom: 6,
+minZoom: 5,
 maxZoom: 8
 }).setView([48.6,31],6);
 
@@ -539,7 +558,7 @@ fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/U
         [-90, -180]
     ];
 
-   
+    
     function getHoles(geometry) {
         let holes = [];
         if (geometry.type === 'Polygon') {
@@ -573,7 +592,6 @@ fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/U
     }).addTo(map);
     window.ukraineLayer = L.geoJSON(data);
     
-    // Додатковий форсований зум для правильного мобільного відображення меж після завантаження шарів
     map.invalidateSize();
     map.fitBounds(ukraineBounds);
 });
@@ -788,8 +806,8 @@ function spawnDrone() {
                     filter:drop-shadow(0 0 6px red);
                 ">
                 `,
-                iconSize: [16,16],
-                iconAnchor: [8,8]
+                iconSize: [25,25],
+                iconAnchor: [12,12]
             })
         }
     ).addTo(map);
@@ -992,8 +1010,8 @@ map.on('click',e=>{
         pvos.push(p);
         
         document.querySelectorAll(".card").forEach(c=>{
-        c.classList.remove("pvo-active");
-    });
+            c.classList.remove("pvo-active");
+        });
 
         placing = false;
 
@@ -1015,6 +1033,30 @@ map.on('click',e=>{
     }
 
 });
+
+/* ================= ОНОВЛЕННЯ СТАНУ ІНТЕРФЕЙСУ МІНІ-ПАНЕЛІ ================= */
+function updateMiniPanelUI() {
+    if(!activePVO) return;
+    
+    const btnAuto = document.getElementById("miniBtnAuto");
+    const btnManual = document.getElementById("miniBtnManual");
+    const ammoText = document.getElementById("miniAmmoText");
+    
+    if(ammoText) ammoText.innerText = `🚀 ${activePVO.ammo}/10`;
+    
+    if(btnAuto && btnManual) {
+        if(activePVO.auto) {
+            btnAuto.classList.add("active-auto");
+            btnManual.classList.remove("active-manual");
+        } else if(manualMode) {
+            btnManual.classList.add("active-manual");
+            btnAuto.classList.remove("active-auto");
+        } else {
+            btnAuto.classList.remove("active-auto");
+            btnManual.classList.remove("active-manual");
+        }
+    }
+}
 
 /* ================= ACTIVE PVO ================= */
 
@@ -1057,41 +1099,23 @@ function setActivePVO(p){
     side.style.display = "block";
 
     side.innerHTML = `
-
-    <h3 class="side-title">Система ПВО</h3>
-
-    <div class="side-pvo-img-container">
-        <img src="${p.icon}" style="filter:drop-shadow(0 0 12px #4da3ff);">
+    <div class="pvo-mini-container">
+        <div class="pvo-mini-left">
+            <img src="${p.icon}">
+            <div class="pvo-mini-title">СИСТЕМА ПВО</div>
+        </div>
+        <div class="pvo-mini-center">
+            <button id="miniBtnAuto" onclick="toggleAuto()" class="mini-toggle-btn">АВТО [C]</button>
+            <button id="miniBtnManual" onclick="toggleManual()" class="mini-toggle-btn">РУЧНИЙ [E]</button>
+        </div>
+        <div class="pvo-mini-right">
+            <div id="miniAmmoText" class="mini-ammo">🚀 ${p.ammo}/10</div>
+            <button onclick="closePanel()" class="mini-close-btn">×</button>
+        </div>
     </div>
-    
-    <div id="ammoText" class="ammo-text">
-        РАКЕТИ: ${p.ammo}/10
-    </div>
-
-    <div style="margin-top:14px">
-
-        <button onclick="toggleAuto()" class="action-btn">
-            [ C / С ] АВТОПУСК 
-        </button>
-
-        <button onclick="toggleManual()" class="action-btn">
-            [ E / У ] РУЧНИЙ ПУСК
-        </button>
-
-    </div>
-
-    <div class="info-text">
-        • AUTO — автоперехват бпла/ракети<br>
-        • MANUAL — ручна наводка<br>
-        • Тицни щоб збити ворога!
-    </div>
-
-    <button onclick="closePanel()" class="action-btn" style="background:#111a2c; margin-top:10px; margin-bottom:0;">
-        CLOSE
-    </button>
-
     `;
 
+    updateMiniPanelUI();
 }
 
 /* ================= MODES ================= */
@@ -1101,16 +1125,20 @@ function toggleAuto(){
     if(!activePVO) return;
 
     activePVO.auto = !activePVO.auto;
-
+    if(activePVO.auto) manualMode = false;
+    updateMiniPanelUI();
 }
-
-/* ================= KEYBOARD ================= */
 
 function toggleManual(){
 
-    manualMode = !manualMode;
+    if(!activePVO) return;
 
+    manualMode = !manualMode;
+    if(manualMode) activePVO.auto = false;
+    updateMiniPanelUI();
 }
+
+/* ================= KEYBOARD ================= */
 
 document.addEventListener("keydown",e=>{
 
@@ -1220,17 +1248,7 @@ if(drone.locked) return;
             pvo.ammo = 10;
 
             if(activePVO === pvo){
-
-                let ammoText =
-                    document.getElementById("ammoText");
-
-                if(ammoText){
-
-                    ammoText.innerText =
-                        `РАКЕТИ: ${pvo.ammo}/10`;
-
-                }
-
+                updateMiniPanelUI();
             }
 
             pvo.reloading = false;
@@ -1244,18 +1262,9 @@ if(drone.locked) return;
 
 drone.locked = true;
 pvo.ammo--;
-    if(activePVO === pvo){
 
-    let ammoText =
-        document.getElementById("ammoText");
-
-    if(ammoText){
-
-        ammoText.innerText =
-            `РАКЕТИ: ${pvo.ammo}/10`;
-
-    }
-
+if(activePVO === pvo){
+    updateMiniPanelUI();
 }
 
 let launch = new Audio("sounds/launch.mp3");
