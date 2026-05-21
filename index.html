@@ -14,7 +14,7 @@ body{
 margin:0;
 overflow:hidden;
 background:#05070c;
-font-family:Arial;
+font-family:Arial, sans-serif;
 color:#eaf2ff;
 display: flex;
 align-items: center;
@@ -41,7 +41,7 @@ z-index: 1;
 }
 
     
-    /* ВЕРХНЯ ПАНЕЛЬ ПЕРЕМИКАННЯ */
+/* ВЕРХНЯ ПАНЕЛЬ ПЕРЕМИКАННЯ */
 .topNav {
 position: absolute;
 top: 12px;
@@ -105,6 +105,7 @@ padding: 24px;
 box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
 text-align: center;
 animation: fadeIn 0.3s ease-in-out;
+box-sizing: border-box;
 }
 
 @keyframes fadeIn {
@@ -144,9 +145,9 @@ text-shadow: 0 0 8px rgba(255, 213, 74, 0.4);
 }
 
 
-    .card img {
-        width: 90px
-    }
+.card img {
+width: 90px
+}
     
     
 .panel{
@@ -224,8 +225,6 @@ height:10px;
 border-radius:50%;
 background:radial-gradient(circle,#ffcc66,#ff4d4d,transparent);
 }
-    
-    
     
     
 .radar {
@@ -345,73 +344,100 @@ color: #9fb4d8;
 line-height: 1.5;
 }
 
-/* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ */
+/* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ — СУЧАСНИЙ ОНОВЛЕНИЙ ВАРІАНТ */
 @media (max-width: 768px) {
 #map {
-    width: 92vw;
-    height: 82vh;
-    border-radius: 16px;
-    border: 1px solid rgba(77, 163, 255, 0.25);
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
 }
 .topNav {
-    top: 4vh;
+    top: 10px;
+    padding: 4px 10px;
+    gap: 8px;
+}
+.navBtn {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+.infoContent {
+    max-width: 90%;
+    padding: 16px;
+}
+.infoContent h2 {
+    font-size: 22px;
+    margin-bottom: 12px;
+}
+.infoContent p {
+    font-size: 14px;
+    padding: 10px;
 }
 .sidePanel {
-    width: 145px;
-    left: 6vw;
-    top: 12vh;
+    width: 280px;
+    left: 50%;
+    top: auto;
+    bottom: 95px;
+    transform: translateX(-50%);
     padding: 10px;
-    border-radius: 12px;
+    border-radius: 14px;
+    background: rgba(10, 14, 22, 0.95);
+    border: 1px solid rgba(77, 163, 255, 0.2);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
 }
 .side-title {
-    font-size: 13px;
+    font-size: 15px;
 }
 .side-pvo-img-container {
-    height: 55px;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    height: 60px;
+    margin-top: 6px;
+    margin-bottom: 6px;
 }
 .ammo-text {
-    font-size: 12px;
-    margin-top: 4px;
+    font-size: 14px;
+    margin-top: 6px;
 }
 .action-btn {
-    padding: 7px;
-    font-size: 10px;
-    margin-bottom: 5px;
-    border-radius: 8px;
+    padding: 10px;
+    font-size: 12px;
+    margin-bottom: 6px;
+    border-radius: 10px;
 }
 .info-text {
-    font-size: 9px;
+    font-size: 10px;
     margin-top: 6px;
-    line-height: 1.3;
+    line-height: 1.4;
+    text-align: center;
 }
 .missile-alert-panel {
-    width: 180px;
-    right: 6vw;
-    top: 12vh;
+    width: 220px;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 65px;
     padding: 8px;
     gap: 8px;
 }
 .missile-alert-panel img {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
 }
 .missile-alert-panel div div:first-child {
-    font-size: 10px !important;
+    font-size: 11px !important;
 }
 .missile-alert-panel div div:last-child {
-    font-size: 8px !important;
+    font-size: 9px !important;
 }
 .bottomBar {
-    padding: 6px;
-    gap: 8px;
-    bottom: 11vh;
+    padding: 8px;
+    gap: 10px;
+    bottom: 12px;
+    background: rgba(10, 14, 22, 0.9);
 }
 .card {
-    width: 70px;
-    height: 52px;
+    width: 75px;
+    height: 55px;
 }
 .card img {
     width: 65px;
@@ -546,6 +572,10 @@ fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/U
         }
     }).addTo(map);
     window.ukraineLayer = L.geoJSON(data);
+    
+    // Додатковий форсований зум для правильного мобільного відображення меж після завантаження шарів
+    map.invalidateSize();
+    map.fitBounds(ukraineBounds);
 });
     
     
