@@ -16,23 +16,18 @@ overflow:hidden;
 background:#05070c;
 font-family:Arial, sans-serif;
 color:#eaf2ff;
-display: flex;
-align-items: center;
-justify-content: center;
 height: 100vh;
 width: 100vw;
 }
 
-/* ЗМЕНШЕНА КАРТА В ЦЕНТРІ ЕКРАНУ */
+/* КАРТА СНОВА НА ВЕСЬ ЭКРАН */
 #map{
-width:80vw;
-height:80vh;
-border-radius: 16px;
-border: 1px solid rgba(77, 163, 255, 0.15);
-box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+width:100vw;
+height:100vh;
 filter:brightness(0.92) contrast(1) saturate(1.);
 transition: all 0.3s ease;
 position: relative;
+z-index: 1;
 }
 
 body::before{
@@ -42,7 +37,7 @@ width:100%;
 height:100%;
 background:radial-gradient(circle at center, rgba(77,163,255,.08), transparent 60%);
 pointer-events:none;
-z-index: 1;
+z-index: 2;
 }
 
     
@@ -167,10 +162,10 @@ border-radius:14px;
 z-index:9999;
 }
 
-/* НОВА КОМПАКТНА ГОРИЗОНТАЛЬНА ПАНЕЛЬ (ВИСОТА 56px) */
+/* КОМПАКТНА ГОРИЗОНТАЛЬНА ПАНЕЛЬ */
 .sidePanel{
 position:absolute;
-bottom: 85px;
+bottom: 95px;
 left: 50%;
 transform: translateX(-50%);
 width: 550px;
@@ -389,9 +384,8 @@ animation: alertPulse 1.5s infinite ease-in-out;
 /* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ */
 @media (max-width: 768px) {
 #map {
-    width: 95vw;
-    height: 70vh;
-    border-radius: 12px;
+    width: 100vw;
+    height: 100vh;
 }
 .topNav {
     top: 10px;
@@ -513,11 +507,10 @@ animation: alertPulse 1.5s infinite ease-in-out;
 <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.js"></script>
 <script>
 
-
-
+/* НАСТРОЙКА ВИЗУАЛЬНОГО ОТДАЛЕНИЯ УЧАСТКА */
 const ukraineBounds = [
-[44, 22],
-[53, 41]
+[43, 20], // Немного расширили границы, чтобы визуально отдалить Украину внутри окна
+[54, 43]
 ];
 
 const map = L.map('map',{
@@ -526,7 +519,7 @@ maxBounds: ukraineBounds,
 maxBoundsViscosity: 1.0,
 minZoom: 5,
 maxZoom: 8
-}).setView([48.6,31],6);
+}).setView([48.6,31],5); // Изменили дефолтный зум на 5 (был 6), чтобы участок стал меньше
 
 map.fitBounds(ukraineBounds);
 
@@ -549,7 +542,6 @@ fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/U
 .then(r => r.json())
 .then(data => {
 
-    // 1. Координаты огромной рамки (весь мир)
     const worldOuter = [
         [-90, -180],
         [90, -180],
@@ -716,12 +708,12 @@ function getRandomTarget() {
 
 const targets = [
 
-    { lat: 50.45, lng: 30.52 }, // Киев
-    { lat: 49.84, lng: 24.03 }, // Львов
-    { lat: 48.46, lng: 35.04 }, // Днепр
-    { lat: 46.48, lng: 30.73 }, // Одесса
-    { lat: 49.99, lng: 36.23 }, // Харьков
-    { lat: 47.84, lng: 35.13 }, // Запорожье
+    { lat: 50.45, lng: 30.52 }, 
+    { lat: 49.84, lng: 24.03 }, 
+    { lat: 48.46, lng: 35.04 }, 
+    { lat: 46.48, lng: 30.73 }, 
+    { lat: 49.99, lng: 36.23 }, 
+    { lat: 47.84, lng: 35.13 }, 
 
 ];
 
@@ -806,7 +798,7 @@ function spawnDrone() {
                     filter:drop-shadow(0 0 6px red);
                 ">
                 `,
-                iconSize: [25,25],
+                iconSize: [24,24],
                 iconAnchor: [12,12]
             })
         }
