@@ -20,7 +20,6 @@ height: 100vh;
 width: 100vw;
 }
 
-/* КАРТА СНОВА НА ВЕСЬ ЭКРАН */
 #map{
 width:100vw;
 height:100vh;
@@ -162,10 +161,10 @@ border-radius:14px;
 z-index:9999;
 }
 
-/* КОМПАКТНА ГОРИЗОНТАЛЬНА ПАНЕЛЬ */
+/* КОМПАКТНА ГОРИЗОНТАЛЬНА ПАНЕЛЬ (ДЛЯ ПК) */
 .sidePanel{
 position:absolute;
-bottom: 115px;
+bottom: 120px; /* ПІДНЯЛИ ПАНЕЛЬ НА ПК (було 95px) */
 left: 50%;
 transform: translateX(-50%);
 width: 550px;
@@ -387,14 +386,6 @@ animation: alertPulse 1.5s infinite ease-in-out;
     width: 100vw;
     height: 100vh;
 }
-
-.sidePanel {
-    width: 95vw;
-    bottom: 105px;
-    padding: 0 10px;
-}
-
-    
 .topNav {
     top: 10px;
     padding: 4px 10px;
@@ -418,7 +409,7 @@ animation: alertPulse 1.5s infinite ease-in-out;
 }
 .sidePanel {
     width: 95vw;
-    bottom: 80px;
+    bottom: 105px; /* ПІДНЯЛИ ПАНЕЛЬ НА МОБІЛКАХ (було 80px) */
     padding: 0 10px;
 }
 .pvo-mini-title {
@@ -515,9 +506,9 @@ animation: alertPulse 1.5s infinite ease-in-out;
 <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.js"></script>
 <script>
 
-/* НАСТРОЙКА ВИЗУАЛЬНОГО ОТДАЛЕНИЯ УЧАСТКА */
+
 const ukraineBounds = [
-[43, 20], // Немного расширили границы, чтобы визуально отдалить Украину внутри окна
+[43, 20], 
 [54, 43]
 ];
 
@@ -525,17 +516,14 @@ const map = L.map('map',{
 zoomControl:false,
 maxBounds: ukraineBounds,
 maxBoundsViscosity: 1.0,
-minZoom: calculatedMinZoom, // Ставимо динамічний зум
+minZoom: 6, 
 maxZoom: 8
-}).setView([48.6,31], calculatedMinZoom); // Стартовий зум теж підлаштовується
+}).setView([48.6,31],6); 
 
 map.fitBounds(ukraineBounds);
 
 window.addEventListener('resize', () => {
     map.invalidateSize();
-    // Оновлюємо ліміти при зміні розміру екрана
-    const currentIsMobile = window.innerWidth <= 768;
-    map.setMinZoom(currentIsMobile ? 5 : 6);
     map.fitBounds(ukraineBounds);
 });
 
@@ -809,8 +797,8 @@ function spawnDrone() {
                     filter:drop-shadow(0 0 6px red);
                 ">
                 `,
-                iconSize: [24,24],
-                iconAnchor: [12,12]
+                iconSize: [16,16],
+                iconAnchor: [8,8]
             })
         }
     ).addTo(map);
