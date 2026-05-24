@@ -1,467 +1,408 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ukraine map</title>
+<title>Ukraine Air Defense Tactical Map Simulator</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-
-body{
-margin:0;
-overflow:hidden;
-background:#05070c;
-font-family:Arial, sans-serif;
-color:#eaf2ff;
-height: 100vh;
-width: 100vw;
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #05070c;
+    font-family: Arial, sans-serif;
+    color: #eaf2ff;
+    height: 100vh;
+    width: 100vw;
 }
 
-#map{
-width:100vw;
-height:100vh;
-filter:brightness(0.92) contrast(1) saturate(1.);
-transition: all 0.3s ease;
-position: relative;
-z-index: 1;
+#map {
+    width: 100vw;
+    height: 100vh;
+    filter: brightness(0.92) contrast(1) saturate(1);
+    position: relative;
+    z-index: 1;
+    background: #05070c !important;
 }
 
-body::before{
-content:"";
-position:absolute;
-width:100%;
-height:100%;
-background:radial-gradient(circle at center, rgba(77,163,255,.08), transparent 60%);
-pointer-events:none;
-z-index: 2;
+body::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(77,163,255,.05), transparent 70%);
+    pointer-events: none;
+    z-index: 2;
 }
 
-    
-/* ВЕРХНЯ ПАНЕЛЬ ПЕРЕМИКАННЯ */
+/* ВЕРХНЯ ПАНЕЛЬ */
 .topNav {
-position: absolute;
-top: 12px;
-left: 50%;
-transform: translateX(-50%);
-display: flex;
-gap: 15px;
-background: rgba(10, 14, 22, 0.85);
-border: 1px solid rgba(255, 255, 255, 0.06);
-padding: 6px 16px;
-border-radius: 20px;
-z-index: 99999;
-backdrop-filter: blur(5px);
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    background: rgba(10, 14, 22, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 6px 16px;
+    border-radius: 20px;
+    z-index: 999999; /* Піднято вище оверлею інфо, щоб кнопки не зникали */
+    backdrop-filter: blur(5px);
 }
 
 .navBtn {
-background: transparent;
-border: none;
-color: #9fb4d8;
-padding: 8px 16px;
-font-size: 14px;
-font-weight: bold;
-cursor: pointer;
-border-radius: 14px;
-transition: 0.2s;
+    background: transparent;
+    border: none;
+    color: #9fb4d8;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 14px;
+    transition: 0.2s;
+    z-index: 9999;
 }
 
 .navBtn:hover {
-color: #fff;
-background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .navBtn.active {
-color: #ffd54a;
-background: rgba(77, 163, 255, 0.15);
-box-shadow: inset 0 0 8px rgba(77, 163, 255, 0.2);
+    color: #ffd54a;
+    background: rgba(77, 163, 255, 0.15);
+    box-shadow: inset 0 0 8px rgba(77, 163, 255, 0.2);
 }
 
 /* ВІКНО ІНФОРМАЦІЇ */
 .infoOverlay {
-position: absolute;
-top: 0;
-left: 0;
-width: 100vw;
-height: 100vh;
-background: rgba(5, 7, 12, 0.95);
-z-index: 999990;
-display: none;
-align-items: center;
-justify-content: center;
-backdrop-filter: blur(10px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 7, 12, 0.95);
+    z-index: 999990;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
 }
 
 .infoContent {
-width: 100%;
-max-width: 700px;
-background: rgba(14, 22, 38, 0.8);
-border: 1px solid rgba(77, 163, 255, 0.2);
-border-radius: 16px;
-padding: 24px;
-box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-text-align: center;
-animation: fadeIn 0.3s ease-in-out;
-box-sizing: border-box;
+    width: 100%;
+    max-width: 700px;
+    background: rgba(14, 22, 38, 0.8);
+    border: 1px solid rgba(77, 163, 255, 0.2);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    text-align: center;
+    animation: fadeIn 0.3s ease-in-out;
+    box-sizing: border-box;
 }
 
 @keyframes fadeIn {
-from { opacity: 0; transform: scale(0.95); }
-to { opacity: 1; transform: scale(1); }
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 .infoContent h2 {
-color: #fff;
-margin-top: 0;
-margin-bottom: 20px;
-letter-spacing: 1px;
-font-size: 30px;
+    color: #fff;
+    margin-top: 0;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    font-size: 30px;
 }
 
 .infoContent p {
-color: #eaf2ff;
-font-size: 17px;
-line-height: 1.6;
-text-align: left;
-background: rgba(10, 14, 22, 0.5);
-padding: 15px;
-border-radius: 12px;
-border: 1px solid rgba(255,255,255,0.03);
+    color: #eaf2ff;
+    font-size: 17px;
+    line-height: 1.6;
+    text-align: left;
+    background: rgba(10, 14, 22, 0.5);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.03);
 }
 
 .infoLink {
-color: #4da3ff;
-text-decoration: none;
-font-weight: bold;
-transition: 0.2s;
+    color: #4da3ff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.2s;
 }
 
 .infoLink:hover {
-color: #ffd54a;
-text-shadow: 0 0 8px rgba(255, 213, 74, 0.4);
+    color: #ffd54a;
+    text-shadow: 0 0 8px rgba(255, 213, 74, 0.4);
 }
 
-
-.card img {
-width: 90px
-}
-    
-    
-.panel{
-position:absolute;
-right:12px;
-top:12px;
-width:320px;
-background:rgba(10,14,22,.85);
-border:1px solid rgba(255,255,255,.06);
-padding:12px;
-border-radius:14px;
-z-index:9999;
-}
-
-/* КОМПАКТНА ГОРИЗОНТАЛЬНА ПАНЕЛЬ (ДЛЯ ПК) */
-.sidePanel{
-position:absolute;
-bottom: 120px; /* ПІДНЯЛИ ПАНЕЛЬ НА ПК (було 95px) */
-left: 50%;
-transform: translateX(-50%);
-width: 550px;
-height: 56px;
-background:rgba(10,14,22,.9);
-border:1px solid rgba(77, 163, 255, 0.2);
-border-radius:14px;
-display:none;
-z-index:9999;
-box-sizing: border-box;
-padding: 0 16px;
-backdrop-filter: blur(8px);
-box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+/* БОКОВА/НИЖНЯ МІНІ-ПАНЕЛЬ КЕРУВАННЯ КОМПЛЕКСОМ */
+.sidePanel {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 550px;
+    height: 56px;
+    background: rgba(10, 14, 22, .9);
+    border: 1px solid rgba(77, 163, 255, 0.2);
+    border-radius: 14px;
+    display: none;
+    z-index: 9999;
+    box-sizing: border-box;
+    padding: 0 16px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
 }
 
 .pvo-mini-container {
-display: flex;
-align-items: center;
-justify-content: space-between;
-width: 100%;
-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
 }
 
 .pvo-mini-left {
-display: flex;
-align-items: center;
-gap: 10px;
-width: 30%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 30%;
 }
 
 .pvo-mini-left img {
-width: 32px;
-height: 32px;
-object-fit: contain;
-filter: drop-shadow(0 0 6px #4da3ff);
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px #4da3ff);
 }
 
 .pvo-mini-title {
-font-size: 14px;
-font-weight: bold;
-color: #fff;
-white-space: nowrap;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    white-space: nowrap;
 }
 
 .pvo-mini-center {
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 8px;
-width: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 40%;
 }
 
 .mini-toggle-btn {
-background: #13213d;
-color: #9fb4d8;
-border: 1px solid rgba(255,255,255,0.05);
-padding: 6px 14px;
-font-size: 12px;
-font-weight: bold;
-border-radius: 8px;
-cursor: pointer;
-transition: 0.2s;
+    background: #13213d;
+    color: #9fb4d8;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
 .mini-toggle-btn.active-auto {
-background: rgba(38, 134, 68, 0.25);
-color: #2ea44f;
-border-color: #2ea44f;
-box-shadow: 0 0 8px rgba(46, 164, 79, 0.3);
+    background: rgba(38, 134, 68, 0.25);
+    color: #2ea44f;
+    border-color: #2ea44f;
+    box-shadow: 0 0 8px rgba(46, 164, 79, 0.3);
 }
 
 .mini-toggle-btn.active-manual {
-background: rgba(77, 163, 255, 0.25);
-color: #4da3ff;
-border-color: #4da3ff;
-box-shadow: 0 0 8px rgba(77, 163, 255, 0.3);
+    background: rgba(77, 163, 255, 0.25);
+    color: #4da3ff;
+    border-color: #4da3ff;
+    box-shadow: 0 0 8px rgba(77, 163, 255, 0.3);
 }
 
 .pvo-mini-right {
-display: flex;
-align-items: center;
-justify-content: flex-end;
-gap: 14px;
-width: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    width: 30%;
 }
 
 .mini-ammo {
-font-size: 14px;
-color: #ffd54a;
-font-weight: bold;
-white-space: nowrap;
+    font-size: 14px;
+    color: #ffd54a;
+    font-weight: bold;
+    white-space: nowrap;
 }
 
 .mini-close-btn {
-background: transparent;
-border: none;
-color: #6b7c96;
-font-size: 18px;
-cursor: pointer;
-font-weight: bold;
-padding: 0 4px;
-transition: 0.2s;
+    background: transparent;
+    border: none;
+    color: #6b7c96;
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0 4px;
+    transition: 0.2s;
 }
 
 .mini-close-btn:hover {
-color: #ff4d4d;
+    color: #ff4d4d;
 }
 
-.bottomBar{
-position:absolute;
-bottom:12px;
-left:50%;
-transform:translateX(-50%);
-display:flex;
-gap:10px;
-background:rgba(10,14,22,.85);
-padding:10px;
-border-radius:14px;
-z-index:9999;
+/* НИЖНЯ ПАНЕЛЬ ВИБОРУ ППО */
+.bottomBar {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    background: rgba(10, 14, 22, .85);
+    padding: 10px;
+    border-radius: 14px;
+    z-index: 9999;
 }
 
-img{
-background:transparent !important;
-border:none !important;
-box-shadow:none !important;
+img {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
-.card{
-width:90px;
-height:70px;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#0e1626;
-border-radius:12px;
-cursor:pointer;
-transition:.2s;
-overflow:hidden;
+.card {
+    width: 90px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0e1626;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: .2s;
+    overflow: hidden;
 }
 
-.card:hover{
-transform:scale(1.05);
-box-shadow:0 0 12px rgba(77,163,255,.3);
+.card img {
+    width: 90px
 }
 
-.pvo-active{
-filter:drop-shadow(0 0 14px #ffd54a) brightness(1.4);
-transform:scale(1.05);
-transition:0.2s;
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px rgba(77,163,255,.3);
 }
 
-.explosion{
-width:10px;
-height:10px;
-border-radius:50%;
-background:radial-gradient(circle,#ffcc66,#ff4d4d,transparent);
-}
-    
-    
-.radar {
-position: absolute;
-width: 140px;
-height: 140px;
-border-radius: 50%;
-background: radial-gradient(circle, rgba(77,163,255,0.25) 0%, transparent 70%);
-border: 2px solid rgba(77,163,255,0.5);
-animation: pulse 2s infinite;
-pointer-events: none;
+.pvo-active {
+    filter: drop-shadow(0 0 14px #ffd54a) brightness(1.2);
+    transform: scale(1.02);
 }
 
-.radar::after {
-content: "";
-position: absolute;
-width: 100%;
-height: 100%;
-border-radius: 50%;
-border: 2px solid rgba(77,163,255,0.3);
-animation: sweep 2s linear infinite;
+/* ЧАСТИНКИ ВИБУХУ */
+.explosion-particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 999999;
 }
 
-@keyframes sweep {
-0% { transform: rotate(0deg) scale(1); opacity: 1; }
-100% { transform: rotate(360deg) scale(1.4); opacity: 0; }
-}
-
-@keyframes pulse {
-0%,100% { opacity: 0.6; }
-50% { opacity: 1; }
-}
-    
-    
 /* СТИЛЬ ДЛЯ ВІКНА РАКЕТНОЇ НЕБЕЗПЕКИ */
 .missile-alert-panel {
-position: absolute;
-right: 12px;
-top: 12px;
-width: 260px;
-background: rgba(220, 38, 38, 0.2);
-border: 2px solid rgba(220, 38, 38, 0.7);
-backdrop-filter: blur(10px);
-padding: 12px;
-border-radius: 12px;
-z-index: 9999;
-display: flex;
-align-items: center;
-gap: 12px;
-box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
-animation: alertPulse 1.5s infinite ease-in-out;
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    width: 260px;
+    background: rgba(220, 38, 38, 0.15);
+    border: 2px solid rgba(220, 38, 38, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 12px;
+    border-radius: 12px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+    animation: alertPulse 1.5s infinite ease-in-out;
 }
 
 @keyframes alertPulse {
-0%, 100% { border-color: rgba(220, 38, 38, 0.7); box-shadow: 0 0 15px rgba(220, 38, 38, 0.3); }
-50% { border-color: rgba(255, 50, 50, 1); box-shadow: 0 0 25px rgba(255, 50, 50, 0.6); }
+    0%, 100% { border-color: rgba(220, 38, 38, 0.6); box-shadow: 0 0 15px rgba(220, 38, 38, 0.2); }
+    50% { border-color: rgba(255, 50, 50, 0.9); box-shadow: 0 0 25px rgba(255, 50, 50, 0.5); }
 }
 
 /* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ */
 @media (max-width: 768px) {
-#map {
-    width: 100vw;
-    height: 100vh;
+    .topNav {
+        top: 10px;
+        padding: 4px 10px;
+        gap: 8px;
+    }
+    .navBtn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    .infoContent {
+        max-width: 90%;
+        padding: 16px;
+    }
+    .infoContent h2 {
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+    .infoContent p {
+        font-size: 14px;
+        padding: 10px;
+    }
+    .sidePanel {
+        width: 95vw;
+        bottom: 105px;
+        padding: 0 10px;
+    }
+    .pvo-mini-title {
+        font-size: 11px;
+    }
+    .mini-toggle-btn {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+    .mini-ammo {
+        font-size: 11px;
+    }
+    .missile-alert-panel {
+        width: 200px;
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 60px;
+        padding: 8px;
+        gap: 8px;
+    }
+    .missile-alert-panel img {
+        width: 30px;
+        height: 30px;
+    }
+    .bottomBar {
+        padding: 6px;
+        gap: 10px;
+        bottom: 10px;
+        background: rgba(10, 14, 22, 0.9);
+    }
+    .card {
+        width: 75px;
+        height: 55px;
+    }
+    .card img {
+        width: 65px;
+    }
 }
-.topNav {
-    top: 10px;
-    padding: 4px 10px;
-    gap: 8px;
-}
-.navBtn {
-    padding: 6px 12px;
-    font-size: 12px;
-}
-.infoContent {
-    max-width: 90%;
-    padding: 16px;
-}
-.infoContent h2 {
-    font-size: 22px;
-    margin-bottom: 12px;
-}
-.infoContent p {
-    font-size: 14px;
-    padding: 10px;
-}
-.sidePanel {
-    width: 95vw;
-    bottom: 105px; /* ПІДНЯЛИ ПАНЕЛЬ НА МОБІЛКАХ (було 80px) */
-    padding: 0 10px;
-}
-.pvo-mini-title {
-    font-size: 11px;
-}
-.mini-toggle-btn {
-    padding: 5px 8px;
-    font-size: 10px;
-}
-.mini-ammo {
-    font-size: 11px;
-}
-.missile-alert-panel {
-    width: 200px;
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 60px;
-    padding: 8px;
-    gap: 8px;
-}
-.missile-alert-panel img {
-    width: 30px;
-    height: 30px;
-}
-.missile-alert-panel div div:first-child {
-    font-size: 11px !important;
-}
-.missile-alert-panel div div:last-child {
-    font-size: 9px !important;
-}
-.bottomBar {
-    padding: 6px;
-    gap: 10px;
-    bottom: 10px;
-    background: rgba(10, 14, 22, 0.9);
-}
-.card {
-    width: 75px;
-    height: 55px;
-}
-.card img {
-    width: 65px;
-}
-}
-
 </style>
 </head>
-
 <body>
 
-<div id="map"></div>
+с<div id="map"></div>
 
 <div class="topNav">
     <button class="navBtn active" id="btnMap" onclick="showScreen('map')">МАПА</button>
@@ -475,72 +416,57 @@ animation: alertPulse 1.5s infinite ease-in-out;
             <strong>Розробник:</strong> <a href="https://t.me/kinub" target="_blank" class="infoLink">@kinub</a><br>
             <strong>ТГ-канал:</strong> <a href="https://t.me/empty" target="_blank" class="infoLink">@empty</a>
             <br><br>
-            <strong>Про сайт:</strong> Цей інтерактивний веб-додаток є симулятором тактичної карти протиповітряної оборони (ППО) України. Він розроблений для демонстрації алгоритмів перехоплення повітряних цілей у реальному часі. Ви можете самостійно розміщувати комплекси ППО на карті, керувати режимами їхньої роботи (автоматичний або ручний пуск) та відбивати імітовані атаки БПЛА "Shahed" та балістичних ракет.
+            <strong>Про сайт:</strong> Цей інтерактивний веб-додаток є симулятором тактичної карти протиповітряної оборони (ППО) України. Він розрозьований для демонстрації алгоритмів перехоплення повітряних цілей у реальному часі. Ви можете самостійно розміщувати комплекси ППО на карті, керувати режимами їхньої роботи (автоматичний або ручний пуск) та відбивати імітовані атаки БПЛА "Shahed" та балістичних ракет.
         </p>
     </div>
 </div>
 
-
-<div class="sidePanel" id="side">
-</div>
+<div class="sidePanel" id="side"></div>
 
 <div class="missile-alert-panel" id="missileAlert" style="display: none;">
-<img src="icons/pngegg(1).png" style="width: 40px; height: 40px; object-fit: contain;">
-<div>
-    <div style="font-weight: bold; color: #ffdddd; font-size: 14px; letter-spacing: 0.5px;">РАКЕТНА НЕБЕЗПЕКА</div>
-    <div style="font-size: 11px; color: #ffaaaa; margin-top: 2px;">Зафіксовано пуски балістики!</div>
-</div>
+    <img src="icons/pngegg(1).png" style="width: 40px; height: 40px; object-fit: contain;">
+    <div>
+        <div style="font-weight: bold; color: #ffdddd; font-size: 14px; letter-spacing: 0.5px;">РАКЕТНА НЕБЕЗПЕКА</div>
+        <div style="font-size: 11px; color: #ffaaaa; margin-top: 2px;">Зафіксовано пуски балістики!</div>
+    </div>
 </div>
 
 <div class="bottomBar">
-
-<div class="card" onclick="selectPVO(this,'icons/first.png')">
-<img src="icons/first.png">
+    <div class="card" onclick="selectPVO(this,'icons/first.png')">
+        <img src="icons/first.png">
+    </div>
+    <div class="card" onclick="selectPVO(this,'icons/second.png')">
+        <img src="icons/second.png">
+    </div>
 </div>
 
-<div class="card" onclick="selectPVO(this,'icons/second.png')">
-<img src="icons/second.png">
-</div>
-
-</div>
-<script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.js"></script>
 <script>
-
-
+// Границы Украины для строгого лимита камеры
 const ukraineBounds = [
-[43, 20], 
-[54, 43]
+    [43.0, 21.0], 
+    [53.0, 41.5]
 ];
 
-const map = L.map('map',{
-zoomControl:false,
-maxBounds: ukraineBounds,
-maxBoundsViscosity: 1.0,
-minZoom: 6, 
-maxZoom: 8
-}).setView([48.6,31],6); 
+const map = L.map('map', {
+    zoomControl: false,
+    maxBounds: ukraineBounds,
+    maxBoundsViscosity: 1.0, 
+    minZoom: 5, 
+    maxZoom: 8,
+    bounceAtZoomLimits: false
+}).setView([48.4, 31.2], 6);
 
-map.fitBounds(ukraineBounds);
-
-window.addEventListener('resize', () => {
-    map.invalidateSize();
-    map.fitBounds(ukraineBounds);
-});
-
-L.tileLayer(
-'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-{
-attribution:''
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '',
+    crossOrigin: true
 }).addTo(map);
 
+let ukrainePolygons = []; 
 
-let ukraineCoords = null;
-
-
+// Загрузка геометрии Украины
 fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/UKR.geo.json')
 .then(r => r.json())
 .then(data => {
-
     const worldOuter = [
         [-90, -180],
         [90, -180],
@@ -549,264 +475,258 @@ fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/U
         [-90, -180]
     ];
 
-    
-    function getHoles(geometry) {
-        let holes = [];
+    function parseGeometry(geometry) {
+        let polygons = [];
         if (geometry.type === 'Polygon') {
-            holes.push(geometry.coordinates[0].map(c => [c[1], c[0]]));
+            polygons.push(geometry.coordinates[0].map(c => [c[1], c[0]]));
         } else if (geometry.type === 'MultiPolygon') {
             geometry.coordinates.forEach(poly => {
-                holes.push(poly[0].map(c => [c[1], c[0]]));
+                polygons.push(poly[0].map(c => [c[1], c[0]]));
             });
         }
-        return holes;
+        return polygons;
     }
 
-    const ukraineHoles = getHoles(data.features[0].geometry);
-
-    const maskArray = [worldOuter, ...ukraineHoles];
+    ukrainePolygons = parseGeometry(data.features[0].geometry);
+    const maskArray = [worldOuter, ...ukrainePolygons];
 
     L.polygon(maskArray, {
         color: 'none',
         fillColor: '#05070c', 
         fillOpacity: 1,       
-        interactive: false
+        interactive: false,
+        pane: 'overlayPane'
     }).addTo(map);
 
     L.geoJSON(data, {
         style: {
-            color: '#ffffff',
-            weight: 0.5,
+            color: 'rgba(77, 163, 255, 0.4)',
+            weight: 1.5,
             fillOpacity: 0,
             interactive: false
         }
     }).addTo(map);
-    window.ukraineLayer = L.geoJSON(data);
     
+    window.ukraineLayer = true;
     map.invalidateSize();
-    map.fitBounds(ukraineBounds);
 });
+
+/* ================= RAY-CASTING ALGORITHM ================= */
+function isPointInUkraine(lat, lng) {
+    if (ukrainePolygons.length === 0) return false;
     
-    
+    let inside = false;
+    for (let i = 0; i < ukrainePolygons.length; i++) {
+        let polygon = ukrainePolygons[i];
+        let j = polygon.length - 1;
+        for (let k = 0; k < polygon.length; k++) {
+            let pi = polygon[k];
+            let pj = polygon[j];
+            
+            if (((pi[0] > lat) !== (pj[0] > lat)) &&
+                (lng < (pj[1] - pi[1]) * (lat - pi[0]) / (pj[0] - pi[0]) + pi[1])) {
+                inside = !inside;
+            }
+            j = k;
+        }
+        if (inside) return true; 
+    }
+    return inside;
+}
 
 /* ================= STATE ================= */
-
 let drones = [];
 let pvos = [];
-
 let placing = false;
 let activePVO = null;
-
 let selectedIcon = null;
-
 let manualMode = false;
 
-/* ================= AUDIO ================= */
-
+/* ================= AUDIO SYSTEM ================= */
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
-const audio = new AudioCtx();
+let audio = null;
 
-function beep(
-    f = 440,
-    t = 0.08,
-    type = "sine",
-    v = 0.04
-){
-
-    let o = audio.createOscillator();
-    let g = audio.createGain();
-
-    o.type = type;
-    o.frequency.value = f;
-
-    g.gain.value = v;
-
-    o.connect(g);
-    g.connect(audio.destination);
-
-    o.start();
-    o.stop(audio.currentTime + t);
-
+function initAudio() {
+    if (!audio) {
+        audio = new AudioCtx();
+    }
+    if (audio.state === 'suspended') {
+        audio.resume();
+    }
 }
 
-function launchSound(){
-
-    beep(120,0.12,"square",0.03);
-
-    setTimeout(()=>{
-        beep(180,0.08,"sine",0.02);
-    },80);
-
+function synthSound(freqs, duration, type = "sine", gainVal = 0.05) {
+    if (!audio) return;
+    try {
+        let osc = audio.createOscillator();
+        let gainNode = audio.createGain();
+        
+        osc.type = type;
+        osc.frequency.setValueAtTime(freqs[0], audio.currentTime);
+        if (freqs.length > 1) {
+            osc.frequency.exponentialRampToValueAtTime(freqs[1], audio.currentTime + duration);
+        }
+        
+        gainNode.gain.setValueAtTime(gainVal, audio.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.001, audio.currentTime + duration);
+        
+        osc.connect(gainNode);
+        gainNode.connect(audio.destination);
+        
+        osc.start();
+        osc.stop(audio.currentTime + duration);
+    } catch(e) {}
 }
 
-function hitSound(){
-
-    beep(50,0.2,"sawtooth",0.07);
-
+function launchSound() {
+    synthSound([140, 400], 0.25, "sawtooth", 0.04);
 }
 
-/* ================= SHAKE ================= */
-
-function shake(){
-
-    let el = document.getElementById("map");
-
-    el.style.transform =
-    `translate(${Math.random()*4-2}px,${Math.random()*4-2}px)`;
-
-    setTimeout(()=>{
-        el.style.transform = "translate(0,0)";
-    },60);
-
+function hitSound() {
+    synthSound([90, 10], 0.4, "triangle", 0.15);
+    setTimeout(() => {
+        synthSound([50, 5], 0.5, "sawtooth", 0.1);
+    }, 50);
 }
 
-/* ================= EXPLOSION ================= */
+function cityDamageSound() {
+    synthSound([120, 20], 0.6, "sawtooth", 0.25);
+    setTimeout(() => {
+        synthSound([70, 10], 0.4, "triangle", 0.2);
+    }, 100);
+}
 
-function explosion(x,y){
+/* ================= SHAKE CAMERA (FIXED POSITION) ================= */
+function shake(intensity = 3) {
+    const mapEl = document.getElementById("map");
+    if (!mapEl) return;
 
-    hitSound();
-    shake();
+    let count = 0;
+    const maxSteps = 10;
+    let currentIntensity = intensity;
 
-    for(let i=0;i<14;i++){
+    let interval = setInterval(() => {
+        let dx = (Math.random() - 0.5) * currentIntensity;
+        let dy = (Math.random() - 0.5) * currentIntensity;
+        
+        mapEl.style.transform = `translate(${dx}px, ${dy}px)`;
+        
+        currentIntensity *= 0.8; // Плавное затухание
+        count++;
 
+        if (count > maxSteps) {
+            clearInterval(interval);
+            mapEl.style.transform = ""; 
+        }
+    }, 25);
+}
+
+/* ================= КРАСИВЫЙ СЛОЖНЫЙ ВИБУХ ================= */
+function createExplosion(x, y, type = "air") {
+    // Теперь передаем уменьшенные параметры для мягкой тряски
+    shake(type === "city" ? 5 : 2);
+    if (type === "city") {
+        cityDamageSound();
+    } else {
+        hitSound();
+    }
+
+    const pCount = type === "city" ? 35 : 22;
+    const colors = type === "city" 
+        ? ["#ff3300", "#ff6600", "#ffaa00", "#777", "#333"] 
+        : ["#ffcc44", "#ff5511", "#ffaa66", "#ffffff"];
+
+    for (let i = 0; i < pCount; i++) {
         let p = document.createElement("div");
-
-        p.className = "explosion";
-
-        p.style.position = "absolute";
+        p.className = "explosion-particle";
+        
+        let size = Math.random() * (type === "city" ? 8 : 5) + 3;
+        p.style.width = size + "px";
+        p.style.height = size + "px";
+        
+        let color = colors[Math.floor(Math.random() * colors.length)];
+        p.style.background = color;
+        p.style.boxShadow = `0 0 ${size * 2}px ${color}`;
+        
         p.style.left = x + "px";
         p.style.top = y + "px";
-
+        
         document.body.appendChild(p);
-
-        let dx = (Math.random()-0.5)*140;
-        let dy = (Math.random()-0.5)*140;
-
+        
+        let angle = Math.random() * Math.PI * 2;
+        let force = Math.random() * (type === "city" ? 160 : 100) + 20;
+        let dx = Math.cos(angle) * force;
+        let dy = Math.sin(angle) * force;
+        
         p.animate([
-            {
-                transform:"translate(0,0) scale(1)",
-                opacity:1
-            },
-            {
-                transform:`translate(${dx}px,${dy}px) scale(.2)`,
-                opacity:0
-            }
-        ],
-        {
-            duration:700
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${dx}px, ${dy}px) scale(0.1)`, opacity: 0 }
+        ], {
+            duration: Math.random() * 400 + 400,
+            easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)',
+            fill: 'forwards'
         });
-
-        setTimeout(()=>{
-            p.remove();
-        },800);
-
+        
+        setTimeout(() => p.remove(), 850);
     }
-
 }
+
 function getRandomTarget() {
-
-const targets = [
-
-    { lat: 50.45, lng: 30.52 }, 
-    { lat: 49.84, lng: 24.03 }, 
-    { lat: 48.46, lng: 35.04 }, 
-    { lat: 46.48, lng: 30.73 }, 
-    { lat: 49.99, lng: 36.23 }, 
-    { lat: 47.84, lng: 35.13 }, 
-
-];
-
-    return targets[
-        Math.floor(Math.random() * targets.length)
+    const targets = [
+        { lat: 50.45, lng: 30.52 }, 
+        { lat: 49.84, lng: 24.03 }, 
+        { lat: 48.46, lng: 35.04 }, 
+        { lat: 46.48, lng: 30.73 }, 
+        { lat: 49.99, lng: 36.23 }, 
+        { lat: 47.84, lng: 35.13 },
+        { lat: 46.97, lng: 32.00 }  
     ];
+    return targets[Math.floor(Math.random() * targets.length)];
 }
 
-/* ================= SPAWN SHAHEDS & BALLISTICS ================= */
-
-function randomPointInUkraine() {
-
-    while (true) {
-
-        let lat = 44 + Math.random() * 8;
-        let lng = 22 + Math.random() * 18;
-
-        let point = turf.point([lng, lat]);
-
-        if (turf.booleanPointInPolygon(point, ukraineGeoJson)) {
-            return { lat, lng };
-        }
-    }
-}
-
+/* ================= SPAWN ENEMIES ================= */
 function spawnDrone() {
-
-    if (!window.ukraineLayer) return;
-
-    if (drones.length > 20) return;
+    if (!window.ukraineLayer || drones.length > 25) return;
 
     let side = Math.floor(Math.random() * 3);
     let lat, lng;
 
     if (side === 0) { 
-        lat = 52.5; 
-        lng = 30 + Math.random() * 8; 
+        lat = 52.3; 
+        lng = 28 + Math.random() * 10; 
     } else if (side === 1) { 
-        lat = 47 + Math.random() * 5; 
-        lng = 40.5; 
+        lat = 46 + Math.random() * 5; 
+        lng = 40.2; 
     } else { 
-        lat = 45; 
-        lng = 34 + Math.random() * 5; 
+        lat = 44.6; 
+        lng = 33 + Math.random() * 5; 
     }
 
     let target = getRandomTarget();
+    let angle = Math.atan2(target.lng - lng, target.lat - lat);
+    let speed = 0.0035 + Math.random() * 0.0015;
 
-    let angle = Math.atan2(
-        target.lng - lng,
-        target.lat - lat
-    );
-
-    let speed = 0.0025 + 0.2 * 0.01;
     let d = {
-
-        lat,
-        lng,
-
+        lat, lng,
         targetLat: target.lat,
         targetLng: target.lng,
-
-        speed,
-        angle,
-
+        speed, angle,
         alive: true,
         locked: false,
         isRocket: false
     };
 
-    let marker = L.marker(
-        [lat, lng],
-        {
-            icon: L.divIcon({
-                className: "",
-                html: `
-                <img
-                src="icons/shahed.png"
-                style="
-                    width:16px;
-                    height:16px;
-                    transform:rotate(${angle * 57.2958}deg);
-                    filter:drop-shadow(0 0 6px red);
-                ">
-                `,
-                iconSize: [16,16],
-                iconAnchor: [8,8]
-            })
-        }
-    ).addTo(map);
+    let marker = L.marker([lat, lng], {
+        icon: L.divIcon({
+            className: "",
+            html: `<img src="icons/shahed.png" style="width:16px; height:16px; transform:rotate(${angle * 57.2958}deg); filter:drop-shadow(0 0 5px red);">`,
+            iconSize: [16,16],
+            iconAnchor: [8,8]
+        })
+    }).addTo(map);
 
     d.marker = marker;
-
     drones.push(d);
-
     bindDrone(d);
 }
 
@@ -816,50 +736,34 @@ function spawnBallisticMissile() {
     let count = Math.floor(Math.random() * 2) + 2; 
     
     for(let k = 0; k < count; k++) {
-        let side = Math.floor(Math.random() * 3);
+        let side = Math.floor(Math.random() * 2);
         let lat, lng;
 
-        if (side === 0) { lat = 52.8; lng = 32 + Math.random() * 6; } 
-        else if (side === 1) { lat = 48 + Math.random() * 4; lng = 40.8; } 
-        else { lat = 44.5; lng = 33 + Math.random() * 4; }
+        if (side === 0) { lat = 52.6; lng = 33 + Math.random() * 5; } 
+        else { lat = 47 + Math.random() * 3; lng = 40.5; }
 
         let target = getRandomTarget();
         let angle = Math.atan2(target.lng - lng, target.lat - lat);
-
-        let speed = 0.035 + Math.random() * 0.015; 
+        let speed = 0.038 + Math.random() * 0.012; 
 
         let d = {
-            lat,
-            lng,
+            lat, lng,
             targetLat: target.lat,
             targetLng: target.lng,
-            speed,
-            angle,
+            speed, angle,
             alive: true,
             locked: false,
             isRocket: true
         };
 
-        let marker = L.marker(
-            [lat, lng],
-            {
-                icon: L.divIcon({
-                    className: "",
-                    html: `
-                    <img
-                    src="icons/ballistic1.png"
-                    style="
-                        width:20px;
-                        height:20px;
-                        transform:rotate(${angle * 57.2958 + 180}deg);
-                        filter:drop-shadow(0 0 8px #ff3333) brightness(1.2);
-                    ">
-                    `,
-                    iconSize: [20,20],
-                    iconAnchor: [10,10]
-                })
-            }
-        ).addTo(map);
+        let marker = L.marker([lat, lng], {
+            icon: L.divIcon({
+                className: "",
+                html: `<img src="icons/ballistic1.png" style="width:22px; height:22px; transform:rotate(${angle * 57.2958 + 180}deg); filter:drop-shadow(0 0 8px #ff2222) brightness(1.3);">`,
+                iconSize: [22,22],
+                iconAnchor: [11,11]
+            })
+        }).addTo(map);
 
         d.marker = marker;
         drones.push(d);
@@ -867,25 +771,20 @@ function spawnBallisticMissile() {
     }
 }
 
-setInterval(spawnDrone,1200);
+setInterval(spawnDrone, 1500);
 
 setTimeout(() => {
     let alertEl = document.getElementById("missileAlert");
     if(alertEl) alertEl.style.display = "flex";
     
-    beep(220, 0.4, "sawtooth", 0.05);
-    setTimeout(() => beep(220, 0.4, "sawtooth", 0.05), 500);
+    synthSound([300, 300], 0.5, "sawtooth", 0.08);
+    setTimeout(() => synthSound([300, 300], 0.5, "sawtooth", 0.08), 600);
 
     spawnBallisticMissile();
+    setInterval(spawnBallisticMissile, 35000);
+}, 25000);
 
-    setInterval(() => {
-        spawnBallisticMissile();
-    }, 40000);
-
-}, 60000);
-
-/* ================= SCREEN TOGGLE (MAP / INFO) ================= */
-
+/* ================= SCREEN INTERACTION ================= */
 function showScreen(screen) {
     const mapBtn = document.getElementById("btnMap");
     const infoBtn = document.getElementById("btnInfo");
@@ -897,135 +796,89 @@ function showScreen(screen) {
         infoScreen.style.display = "none";
         setTimeout(() => { 
             map.invalidateSize(); 
-            map.fitBounds(ukraineBounds);
-        }, 100);
+        }, 50);
     } else if (screen === 'info') {
         infoBtn.classList.add("active");
         mapBtn.classList.remove("active");
         infoScreen.style.display = "flex";
-        
-        if (typeof audio !== 'undefined') audio.resume();
+        initAudio();
     }
 }
-    
-    
-/* ================= SELECT PVO ================= */
 
-function selectPVO(card,icon){
-
-    document.querySelectorAll(".card").forEach(c=>{
-
-        c.classList.remove("pvo-active");
-
-    });
-
+function selectPVO(card, icon){
+    document.querySelectorAll(".card").forEach(c => c.classList.remove("pvo-active"));
     card.classList.add("pvo-active");
     
-    setTimeout(()=>{
-        document.querySelectorAll(".card").forEach(c=>{
-            c.classList.remove("pvo-active");
-        });
-    }, 0);
+    setTimeout(() => {
+        document.querySelectorAll(".card").forEach(c => c.classList.remove("pvo-active"));
+    }, 1500);
 
     selectedIcon = icon;
-
     placing = true;
-
-    audio.resume();
-
+    initAudio();
 }
 
 /* ================= PLACE PVO ================= */
-
-map.on('click',e=>{
+map.on('click', e => {
+    initAudio();
 
     if(placing){
+        if (!isPointInUkraine(e.latlng.lat, e.latlng.lng)) {
+            synthSound([180, 100], 0.15, "triangle", 0.08);
+            placing = false;
+            return;
+        }
         
-        let marker = L.marker(
-            e.latlng,
-            {
-                icon:L.divIcon({
-                    className:"",
-                    html:`
-                    <img
-                    src="${selectedIcon}"
-                    style="
-                    width:42px;
-                    filter:
-                    drop-shadow(0 0 10px #4da3ff);
-                    ">
-                    `
-                })
-            }
-        ).addTo(map);
+        let marker = L.marker(e.latlng, {
+            icon: L.divIcon({
+                className: "",
+                html: `<img src="${selectedIcon}" style="width:42px; filter:drop-shadow(0 0 10px #4da3ff);">`
+            })
+        }).addTo(map);
 
-        let circle = L.circle(
-            e.latlng,
-            {
-                radius:95000,
-                color:"#3f8cff",
-                weight:1,
-                fillColor:"#3f8cff",
-                fillOpacity:0.08
-            }
-        ).addTo(map);
+        let circle = L.circle(e.latlng, {
+            radius: 95000,
+            color: "#3f8cff",
+            weight: 1,
+            fillColor: "#3f8cff",
+            fillOpacity: 0.06
+        }).addTo(map);
 
         let p = {
-
-            marker,
-            circle,
-
-            latlng:e.latlng,
-
-            icon:selectedIcon,
-
-            auto:false,
-
-            ammo:10,
-            reloading:false
-
+            marker, circle,
+            latlng: e.latlng,
+            icon: selectedIcon,
+            auto: false,
+            ammo: 10,
+            reloading: false
         };
 
-        marker.on('click',()=>{
-
+        marker.on('click', (ev) => {
+            L.DomEvent.stopPropagation(ev);
             setActivePVO(p);
-
         });
 
-        circle.on('click',()=>{
-
+        circle.on('click', (ev) => {
+            L.DomEvent.stopPropagation(ev);
             setActivePVO(p);
-
         });
 
         pvos.push(p);
-        
-        document.querySelectorAll(".card").forEach(c=>{
-            c.classList.remove("pvo-active");
-        });
-
         placing = false;
-
         return;
-
     }
 
     if(manualMode && activePVO){
-
         let target = findDroneNear(e.latlng);
-
         if(target){
             let currentDist = map.distance(activePVO.latlng, [target.lat, target.lng]);
             if (currentDist <= 95000) {
-                fire(activePVO,target,true);
+                fire(activePVO, target);
             }
         }
-
     }
-
 });
 
-/* ================= ОНОВЛЕННЯ СТАНУ ІНТЕРФЕЙСУ МІНІ-ПАНЕЛІ ================= */
 function updateMiniPanelUI() {
     if(!activePVO) return;
     
@@ -1049,46 +902,18 @@ function updateMiniPanelUI() {
     }
 }
 
-/* ================= ACTIVE PVO ================= */
-
 function setActivePVO(p){
-
     activePVO = p;
-
-    pvos.forEach(x=>{
-
-        x.marker
-        .getElement()
-        .classList
-        .remove("pvo-active");
-
-        x.circle.setStyle({
-
-            color:"#3f8cff",
-            fillColor:"#3f8cff",
-            fillOpacity:0.08
-
-        });
-
+    pvos.forEach(x => {
+        if(x.marker.getElement()) x.marker.getElement().classList.remove("pvo-active");
+        x.circle.setStyle({ color: "#3f8cff", fillColor: "#3f8cff", fillOpacity: 0.06 });
     });
 
-    p.marker
-    .getElement()
-    .classList
-    .add("pvo-active");
-
-    p.circle.setStyle({
-
-        color:"#268644",
-        fillColor:"#268644",
-        fillOpacity:0.16
-
-    });
+    if(p.marker.getElement()) p.marker.getElement().classList.add("pvo-active");
+    p.circle.setStyle({ color: "#268644", fillColor: "#268644", fillOpacity: 0.14 });
 
     let side = document.getElementById("side");
-
     side.style.display = "block";
-
     side.innerHTML = `
     <div class="pvo-mini-container">
         <div class="pvo-mini-left">
@@ -1109,450 +934,213 @@ function setActivePVO(p){
     updateMiniPanelUI();
 }
 
-/* ================= MODES ================= */
-
 function toggleAuto(){
-
     if(!activePVO) return;
-
     activePVO.auto = !activePVO.auto;
     if(activePVO.auto) manualMode = false;
     updateMiniPanelUI();
 }
 
 function toggleManual(){
-
     if(!activePVO) return;
-
     manualMode = !manualMode;
     if(manualMode) activePVO.auto = false;
     updateMiniPanelUI();
 }
 
-/* ================= KEYBOARD ================= */
-
-document.addEventListener("keydown",e=>{
-
-    if(
-        e.key === "c" ||
-        e.key === "с"
-    ){
-
-        toggleAuto();
-
-    }
-
-    if(
-        e.key === "e" ||
-        e.key === "у"
-    ){
-
-        toggleManual();
-
-    }
-
+document.addEventListener("keydown", e => {
+    if(e.key === "c" || e.key === "с") toggleAuto();
+    if(e.key === "e" || e.key === "у") toggleManual();
 });
 
-/* ================= FIND DRONE ================= */
-
 function findDroneNear(latlng){
-
     let best = null;
-
     let bestDist = 999999;
 
     for(let d of drones){
-
         if(!d.alive) continue;
-
-        let dist = map.distance(
-            latlng,
-            [d.lat,d.lng]
-        );
-
-        if(
-            dist < 30000 &&
-            dist < bestDist
-        ){
-
+        let dist = map.distance(latlng, [d.lat, d.lng]);
+        if(dist < 35000 && dist < bestDist){
             best = d;
             bestDist = dist;
-
         }
-
     }
-
     return best;
-
 }
 
-/* ================= AUTO FIRE ================= */
-
-setInterval(()=>{
-
+/* ================= AUTO FIRE SYSTEM ================= */
+setInterval(() => {
     for(let p of pvos){
-
         if(!p.auto) continue;
-
         for(let d of drones){
-
-            if(!d.alive) continue;
-
-            let dist = map.distance(
-                p.latlng,
-                [d.lat,d.lng]
-            );
-
+            if(!d.alive || d.locked) continue;
+            let dist = map.distance(p.latlng, [d.lat, d.lng]);
             if(dist <= 95000){
-
-                fire(p,d,false);
-
+                fire(p, d);
                 break;
-
             }
-
         }
-
     }
+}, 1000);
 
-},1200);
-
-/* ================= FIRE SYSTEM ================= */
-
-function fire(pvo,drone,manual=false){
-
-if(!pvo) return;
-if(!drone) return;
-
-if(!drone.alive) return;
-
-if(drone.locked) return;
+/* ================= INTERCEPT ENGINE ================= */
+function fire(pvo, drone){
+    if(!pvo || !drone || !drone.alive || drone.locked) return;
     
     if(pvo.ammo <= 0){
-
-    if(!pvo.reloading){
-
-        pvo.reloading = true;
-
-        setTimeout(()=>{
-
-            pvo.ammo = 10;
-
-            if(activePVO === pvo){
-                updateMiniPanelUI();
-            }
-
-            pvo.reloading = false;
-
-        },10000);
-
+        if(!pvo.reloading){
+            pvo.reloading = true;
+            setTimeout(() => {
+                pvo.ammo = 10;
+                if(activePVO === pvo) updateMiniPanelUI();
+                pvo.reloading = false;
+            }, 8000);
+        }
+        return;
     }
 
-    return;
-}
+    drone.locked = true;
+    pvo.ammo--;
+    if(activePVO === pvo) updateMiniPanelUI();
 
-drone.locked = true;
-pvo.ammo--;
+    launchSound();
 
-if(activePVO === pvo){
-    updateMiniPanelUI();
-}
-
-let launch = new Audio("sounds/launch.mp3");
-launch.volume = 0.35;
-launch.play();
-
-/* ================= MISSILE ================= */
-
-let rocket = L.marker(
-    pvo.latlng,
-    {
-        icon:L.divIcon({
-            className:"",
-            iconSize:[32,32],
-            iconAnchor:[16,16],
-
-            html:`
-            <div style="
-            position:relative;
-            width:32px;
-            height:32px;
-            overflow:visible;
-            ">
-
-                <div style="
-                position:absolute;
-                width:14px;
-                height:14px;
-                border-radius:50%;
-                background:rgba(255,180,80,.35);
-                left:2px;
-                top:9px;
-                filter:blur(5px);
-                ">
-                </div>
-
-                <img
-                src="icons/rocket.png"
-                style="
-                width:32px;
-                position:absolute;
-                left:0;
-                top:0;
-                transform-origin:center center;
-                transition:transform 0.03s linear;
-                filter:
-                drop-shadow(0 0 10px #ffd54a)
-                drop-shadow(0 0 20px rgba(255,200,50,.5));
-                ">
-            </div>
-            `
+    let rocket = L.marker(pvo.latlng, {
+        icon: L.divIcon({
+            className: "",
+            iconSize: [32,32],
+            iconAnchor: [16,16],
+            html: `
+            <div style="position:relative; width:32px; height:32px;">
+                <div style="position:absolute; width:12px; height:12px; border-radius:50%; background:rgba(255,140,0,0.4); left:10px; top:10px; filter:blur(4px);"></div>
+                <img src="icons/rocket.png" style="width:32px; position:absolute; left:0; top:0; filter:drop-shadow(0 0 8px #ffd54a);">
+            </div>`
         })
-    }
-).addTo(map);
+    }).addTo(map);
 
-/* ================= TARGET LINE ================= */
+    let line = L.polyline([pvo.latlng, drone.marker.getLatLng()], {
+        color: "rgba(255, 196, 0, 0.45)",
+        weight: 1.5,
+        dashArray: "6 8",
+        interactive: false
+    }).addTo(map);
 
-let line = L.polyline(
-    [
-        pvo.latlng,
-        drone.marker.getLatLng()
-    ],
-    {
-        color:"#ffc400",
-        weight:2,
-        dashArray:"8 10",
-        opacity:0.75
-    }
-).addTo(map);
+    let i = 0;
+    let steps = drone.isRocket ? 80 : 130;
+    let startLat = pvo.latlng.lat;
+    let startLng = pvo.latlng.lng;
 
-/* ================= MISSILE PHYSICS ================= */
-
-let i = 0;
-
-let steps = drone.isRocket ? 110 : 170;
-
-let startLat = pvo.latlng.lat;
-let startLng = pvo.latlng.lng;
-
-let int = setInterval(()=>{
-
-    if(!drone.alive){
-
-        map.removeLayer(rocket);
-        map.removeLayer(line);
-
-        clearInterval(int);
-
-        return;
-
-    }
-
-    i++;
-
-    let t = i / steps;
-
-    let curve =
-    Math.sin(t * Math.PI) * 0.25;
-
-    let lat =
-    startLat +
-    (drone.lat - startLat) * t +
-    curve;
-
-    let lng =
-    startLng +
-    (drone.lng - startLng) * t;
-
-    rocket.setLatLng([lat,lng]);
-
-    let futureT = t + 0.01;
-
-    let futureCurve =
-    Math.sin(futureT * Math.PI) * 0.25;
-
-    let nextLat =
-    startLat +
-    (drone.lat - startLat) * futureT +
-    futureCurve;
-
-    let nextLng =
-    startLng +
-    (drone.lng - startLng) * futureT;
-
-    let angle =
-    Math.atan2(
-        nextLng - lng,
-        nextLat - lat
-    ) * 180 / Math.PI;
-
-    let img =
-    rocket.getElement()
-    ?.querySelector("img");
-
-    if(img){
-
-        img.style.transform =
-        `rotate(${angle - 90}deg)`;
-
-    }
-
-    line.setLatLngs([
-        pvo.latlng,
-        drone.marker.getLatLng()
-    ]);
-
-    if(
-        map.distance(
-            [lat,lng],
-            [drone.lat,drone.lng]
-        ) < 7000
-    ){
-
-        let boom = new Audio("sounds/explosion.mp3");
-        boom.volume = 0.45;
-        boom.play();
-
-        let p =
-        map.latLngToContainerPoint(
-            [lat,lng]
-        );
-
-        explosion(p.x,p.y);
-
-        map.removeLayer(drone.marker);
-
-        drone.alive = false;
-
-        map.removeLayer(rocket);
-        map.removeLayer(line);
-
-        clearInterval(int);
-
-        return;
-
-    }
-
-    if(i >= steps){
-
-        map.removeLayer(rocket);
-        map.removeLayer(line);
-
-        clearInterval(int);
-
-    }
-
-},28);
-
-}
-
-/* ================= CLICK DRONE ================= */
-
-function bindDrone(d){
-
-    d.marker.on('click',()=>{
-
-        if(!activePVO) return;
-
-        let currentDist = map.distance(activePVO.latlng, [d.lat, d.lng]);
-        if (currentDist <= 95000) {
-            fire(activePVO,d,true);
+    let int = setInterval(() => {
+        if(!drone.alive){
+            map.removeLayer(rocket);
+            map.removeLayer(line);
+            clearInterval(int);
+            return;
         }
 
-    });
+        i++;
+        let t = i / steps;
+        let curve = Math.sin(t * Math.PI) * 0.18;
 
+        let lat = startLat + (drone.lat - startLat) * t + curve;
+        let lng = startLng + (drone.lng - startLng) * t;
+
+        rocket.setLatLng([lat, lng]);
+
+        let futureT = t + 0.01;
+        let futureCurve = Math.sin(futureT * Math.PI) * 0.18;
+        let nextLat = startLat + (drone.lat - startLat) * futureT + futureCurve;
+        let nextLng = startLng + (drone.lng - startLng) * futureT;
+        let angle = Math.atan2(nextLng - lng, nextLat - lat) * 180 / Math.PI;
+
+        let img = rocket.getElement()?.querySelector("img");
+        if(img) img.style.transform = `rotate(${angle - 90}deg)`;
+
+        line.setLatLngs([pvo.latlng, drone.marker.getLatLng()]);
+
+        if(map.distance([lat, lng], [drone.lat, drone.lng]) < 8000){
+            let p = map.latLngToContainerPoint([lat, lng]);
+            createExplosion(p.x, p.y, "air");
+
+            drone.alive = false;
+            map.removeLayer(drone.marker);
+            map.removeLayer(rocket);
+            map.removeLayer(line);
+            clearInterval(int);
+            return;
+        }
+
+        if(i >= steps){
+            map.removeLayer(rocket);
+            map.removeLayer(line);
+            clearInterval(int);
+        }
+    }, 25);
 }
 
-/* ================= DRONE MOVEMENT ================= */
+function bindDrone(d){
+    d.marker.on('click', (ev) => {
+        L.DomEvent.stopPropagation(ev);
+        if(!activePVO) return;
+        let currentDist = map.distance(activePVO.latlng, [d.lat, d.lng]);
+        if (currentDist <= 95000) {
+            fire(activePVO, d);
+        }
+    });
+}
 
-setInterval(()=>{
-
+/* ================= SIMULATION TICKER ================= */
+setInterval(() => {
     for(let d of drones){
-
         if(!d.alive) continue;
 
         let dx = d.targetLat - d.lat;
         let dy = d.targetLng - d.lng;
-
         let dist = Math.sqrt(dx * dx + dy * dy);
         
-        if(dist < 0.05){
-
+        if(dist < 0.04){
             d.alive = false;
             map.removeLayer(d.marker);
 
             let pixelPos = map.latLngToContainerPoint([d.targetLat, d.targetLng]);
-            explosion(pixelPos.x, pixelPos.y);
-            
-            let cityBoom = new Audio("sounds/explosion.mp3");
-            cityBoom.volume = 0.6; 
-            cityBoom.play();
-
+            createExplosion(pixelPos.x, pixelPos.y, "city");
             continue;
         }
 
         d.lat += (dx / dist) * d.speed;
         d.lng += (dy / dist) * d.speed;
         
-        let angle =
-            Math.atan2(dy, dx) * 180 / Math.PI;
-
-        let img =
-            d.marker.getElement()?.querySelector("img");
-
-        if(img){
-
-            img.style.transform =
-                `rotate(${angle - 90}deg)`;
-
-        }
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        let img = d.marker.getElement()?.querySelector("img");
+        if(img) img.style.transform = `rotate(${angle - 90}deg)`;
 
         if(!d.isRocket) {
-            d.lat += Math.sin(Date.now()/1000) * 0.00005;
-            d.lng += Math.cos(Date.now()/1200) * 0.00003;
+            d.lat += Math.sin(Date.now() / 800) * 0.00006;
+            d.lng += Math.cos(Date.now() / 900) * 0.00004;
         }
 
-        d.marker.setLatLng([
-            d.lat,
-            d.lng
-        ]);
-
+        d.marker.setLatLng([d.lat, d.lng]);
     }
+}, 40);
 
-},40);
-
-/* ================= CLEANUP ================= */
-
-setInterval(()=>{
-
-    drones = drones.filter(d=>{
-
+/* ================= CLEANUP MEMORY ================= */
+setInterval(() => {
+    drones = drones.filter(d => {
         if(!d.alive) return false;
-
-        if(
-            d.lat > 55 ||
-            d.lng > 45
-        ){
-
+        if(d.lat > 54 || d.lng > 43) {
             map.removeLayer(d.marker);
-
             return false;
-
         }
-
         return true;
-
     });
-
-},4000);
+}, 3000);
 
 function closePanel() {
     document.getElementById("side").style.display = "none";
-    if(activePVO) {
+    if(activePVO && activePVO.marker.getElement()) {
         activePVO.marker.getElement().classList.remove("pvo-active");
     }
 }
-
 </script>
 
 </body>
